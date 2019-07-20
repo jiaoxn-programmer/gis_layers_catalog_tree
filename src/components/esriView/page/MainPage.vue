@@ -1,5 +1,9 @@
 <template>
-    <esri-view-component></esri-view-component>
+    <el-container>
+        <el-main>
+            <esri-view-component></esri-view-component>
+        </el-main>
+    </el-container>
 </template>
 
 <script>
