@@ -115,7 +115,7 @@ export default {
 /* 设置存储View的Div的高度和宽度 */
 #esriViewDiv {
     position: absolute;
-    top: 0;
+    top: 64px;
     bottom: 0;
     left: 0;
     right: 0;
@@ -124,11 +124,6 @@ export default {
 /* 设置View的外边框 */
 .esri-view .esri-view-surface--inset-outline:focus::after {
     outline: auto 0 Highlight !important;
-}
-
-/* 设置按钮的Top属性 */
-.esri-ui {
-    top: 80px !important;
 }
 
 /* 设置二三维切换按钮的div和input样式 */
