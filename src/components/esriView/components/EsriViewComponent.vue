@@ -11,6 +11,7 @@
 
 <script>
 import { loadModules } from 'esri-loader'
+import { setTimeout } from 'timers'
 
 export default {
     name: 'EsriViewComponent',
@@ -61,6 +62,17 @@ export default {
                 initialEsriViewParams.container = null
                 that.esriMapView = createEsriView(initialEsriViewParams, '2d')
                 that.esriMapView.map = esriMap
+
+                // 监听View的加载完成事件
+                that.activateView.when(function () {
+                    if (that.$route.name === 'EsriViewPage') {
+                        setTimeout(function () {
+                            that.$router.push({
+                                name: 'CatalogTreePage'
+                            })
+                        }, 1000)
+                    }
+                })
 
                 /**
                  * 根据参数和类型创建相对应的view实例
