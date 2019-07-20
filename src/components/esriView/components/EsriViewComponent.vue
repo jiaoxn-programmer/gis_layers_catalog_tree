@@ -1,5 +1,11 @@
 <template>
     <div id="esriViewDiv">
+        <div id="switchBtnDiv">
+            <input id="switchBtn" type="button" v-model="switchBtnText"
+            class="esri-component esri-widget-button esri-widget esri-interactive"
+            @click="switchBetween2DAnd3D"
+            />
+        </div>
     </div>
 </template>
 
@@ -14,36 +20,88 @@ export default {
     },
     data: function () {
         return {
-            esriSceneView: null
+            esriSceneView: null,
+            esriMapView: null,
+            activateView: null,
+            containerDiv: 'esriViewDiv',
+            switchBtnText: '2D'
         }
     },
     methods: {
+        /**
+         * 初始化View
+         */
         initEsriView: function () {
             let that = this
 
-            const options = {
-                css: true
-            }
-
             loadModules([
                 'esri/Map',
+                'esri/views/MapView',
                 'esri/views/SceneView'
-            ], options).then(([
+            ]).then(([
                 EsriMap,
+                EsriMapView,
                 EsriSceneView
             ]) => {
+                let initialEsriViewParams = {
+                    container: that.containerDiv
+                }
+
                 let esriMap = new EsriMap({
                     basemap: 'streets',
                     ground: 'world-elevation'
                 })
 
-                that.esriSceneView = new EsriSceneView({
-                    container: 'esriViewDiv',
-                    map: esriMap,
-                    scale: 50000000,
-                    center: [-101.17, 21.78]
-                })
+                // 初始化SceneView
+                that.esriSceneView = createEsriView(initialEsriViewParams, '3d')
+                that.esriSceneView.map = esriMap
+                that.activateView = that.esriSceneView
+
+                // 初始化MapView
+                initialEsriViewParams.container = null
+                that.esriMapView = createEsriView(initialEsriViewParams, '2d')
+                that.esriMapView.map = esriMap
+
+                /**
+                 * 根据参数和类型创建相对应的view实例
+                 * @param {Object} esriViewParams 创建view所需的参数
+                 * @param {string} esriViewParams.container view的容器div的id
+                 * @param {string} type 创建view的类型，从'2d'和'3d'中选择
+                 */
+                function createEsriView (esriViewParams, type) {
+                    let esriView = null
+                    let is2D = type === '2d'
+
+                    if (is2D) {
+                        esriView = new EsriMapView(esriViewParams)
+                    } else {
+                        esriView = new EsriSceneView(esriViewParams)
+                    }
+
+                    return esriView
+                }
             })
+        },
+        /**
+         * MapView和SceneView的切换
+         */
+        switchBetween2DAnd3D: function () {
+            let is3D = this.activateView.type === '3d'
+            let activeViewPoint = this.activateView.viewpoint.clone()
+
+            this.activateView.container = null
+
+            if (is3D) {
+                this.esriMapView.viewpoint = activeViewPoint
+                this.esriMapView.container = this.containerDiv
+                this.activateView = this.esriMapView
+                this.switchBtnText = '3D'
+            } else {
+                this.esriSceneView.viewpoint = activeViewPoint
+                this.esriSceneView.container = this.containerDiv
+                this.activateView = this.esriSceneView
+                this.switchBtnText = '2D'
+            }
         }
     }
 }
@@ -71,5 +129,16 @@ export default {
 /* 设置按钮的Top属性 */
 .esri-ui {
     top: 80px !important;
+}
+
+/* 设置二三维切换按钮的div和input样式 */
+#switchBtnDiv {
+    position: absolute;
+    right: 15px;
+    bottom: 20px;
+}
+#switchBtnDiv input {
+    border: none;
+    box-shadow: rgba(0, 0, 0, 0.3) 0px 1px 2px;
 }
 </style>
