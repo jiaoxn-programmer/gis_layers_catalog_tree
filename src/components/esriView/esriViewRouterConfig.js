@@ -1,7 +1,7 @@
-import EsriViewPage from '@/components/esriView/page/EsriViewPage'
+import MainPage from '@/components/esriView/page/MainPage'
 
 export default {
     path: '/',
-    name: 'EsriViewPage',
-    component: EsriViewPage
+    name: 'MainPage',
+    component: MainPage
 }
