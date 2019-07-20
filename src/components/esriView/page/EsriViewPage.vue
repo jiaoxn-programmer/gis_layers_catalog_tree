@@ -1,8 +1,6 @@
 <template>
     <el-container>
-        <el-main>
-            <esri-view-component></esri-view-component>
-        </el-main>
+        <esri-view-component></esri-view-component>
     </el-container>
 </template>
 
