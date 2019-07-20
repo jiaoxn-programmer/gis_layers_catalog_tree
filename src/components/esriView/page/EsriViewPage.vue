@@ -1,6 +1,7 @@
 <template>
     <el-container>
         <esri-view-component></esri-view-component>
+        <router-view></router-view>
     </el-container>
 </template>
 
