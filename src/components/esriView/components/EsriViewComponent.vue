@@ -1,5 +1,10 @@
 <template>
-    <div id="esriViewDiv">
+    <div id="esriViewDiv"
+    v-loading="false"
+    element-loading-text="拼命加载中"
+    element-loading-spinner="el-icon-loading"
+    element-loading-background="rgba(0, 0, 0, 0.8)"
+    >
         <div id="switchBtnDiv">
             <input id="switchBtn" type="button" v-model="switchBtnText"
             class="esri-component esri-widget-button esri-widget esri-interactive"
@@ -10,6 +15,8 @@
 </template>
 
 <script>
+import { mapState, mapActions } from 'vuex'
+
 import { loadModules } from 'esri-loader'
 import { setTimeout } from 'timers'
 
@@ -18,6 +25,11 @@ export default {
     mounted () {
         // 初始化当前View
         this.initEsriView()
+    },
+    computed: {
+        ...mapState('esriViewVuex', {
+            layerInfoFromNode: state => state.layerInfo
+        })
     },
     data: function () {
         return {
@@ -35,63 +47,76 @@ export default {
         initEsriView: function () {
             let that = this
 
-            loadModules([
-                'esri/Map',
-                'esri/views/MapView',
-                'esri/views/SceneView'
-            ]).then(([
-                EsriMap,
-                EsriMapView,
-                EsriSceneView
-            ]) => {
-                let initialEsriViewParams = {
-                    container: that.containerDiv
-                }
-
-                let esriMap = new EsriMap({
-                    basemap: 'streets',
-                    ground: 'world-elevation'
+            that.showLoadingComponentAction().then(function () {
+                let loading = that.$loading({
+                    target: document.getElementById('loadingDiv'),
+                    lock: false,
+                    text: '正在初始化场景...',
+                    spinner: 'el-icon-loading',
+                    background: 'rgba(0, 0, 0, 0.7)'
                 })
 
-                // 初始化SceneView
-                that.esriSceneView = createEsriView(initialEsriViewParams, '3d')
-                that.esriSceneView.map = esriMap
-                that.activateView = that.esriSceneView
+                loadModules([
+                    'esri/Map',
+                    'esri/views/MapView',
+                    'esri/views/SceneView'
+                ]).then(([
+                    EsriMap,
+                    EsriMapView,
+                    EsriSceneView
+                ]) => {
+                    let initialEsriViewParams = {
+                        container: that.containerDiv
+                    }
 
-                // 初始化MapView
-                initialEsriViewParams.container = null
-                that.esriMapView = createEsriView(initialEsriViewParams, '2d')
-                that.esriMapView.map = esriMap
+                    let esriMap = new EsriMap({
+                        basemap: 'streets',
+                        ground: 'world-elevation'
+                    })
 
-                // 监听View的加载完成事件
-                that.activateView.when(function () {
-                    if (that.$route.name === 'EsriViewPage') {
-                        setTimeout(function () {
-                            that.$router.push({
-                                name: 'CatalogTreePage'
-                            })
-                        }, 1000)
+                    // 初始化SceneView
+                    that.esriSceneView = createEsriView(initialEsriViewParams, '3d')
+                    that.esriSceneView.map = esriMap
+                    that.activateView = that.esriSceneView
+
+                    // 初始化MapView
+                    initialEsriViewParams.container = null
+                    that.esriMapView = createEsriView(initialEsriViewParams, '2d')
+                    that.esriMapView.map = esriMap
+
+                    // 监听View的加载完成事件
+                    that.activateView.when(function () {
+                        loading.close()
+                        that.hideLoadingComponentAction()
+
+                        if (that.$route.name === 'EsriViewPage') {
+                            setTimeout(function () {
+                                that.$router.push({
+                                    name: 'CatalogTreePage'
+                                })
+                            }, 1000)
+                        }
+                    })
+
+                    /**
+                     * 根据参数和类型创建相对应的view实例
+                     * @param {Object} esriViewParams 创建view所需的参数
+                     * @param {string} esriViewParams.container view的容器div的id
+                     * @param {string} type 创建view的类型，从'2d'和'3d'中选择
+                     */
+                    function createEsriView (esriViewParams, type) {
+                        let esriView = null
+                        let is2D = type === '2d'
+
+                        if (is2D) {
+                            esriView = new EsriMapView(esriViewParams)
+                        } else {
+                            esriView = new EsriSceneView(esriViewParams)
+                        }
+
+                        return esriView
                     }
                 })
-
-                /**
-                 * 根据参数和类型创建相对应的view实例
-                 * @param {Object} esriViewParams 创建view所需的参数
-                 * @param {string} esriViewParams.container view的容器div的id
-                 * @param {string} type 创建view的类型，从'2d'和'3d'中选择
-                 */
-                function createEsriView (esriViewParams, type) {
-                    let esriView = null
-                    let is2D = type === '2d'
-
-                    if (is2D) {
-                        esriView = new EsriMapView(esriViewParams)
-                    } else {
-                        esriView = new EsriSceneView(esriViewParams)
-                    }
-
-                    return esriView
-                }
             })
         },
         /**
@@ -114,6 +139,102 @@ export default {
                 this.activateView = this.esriSceneView
                 this.switchBtnText = '2D'
             }
+        },
+        /**
+         * 添加图层到View中
+         * @param {Object} layerInfo 需要添加的图层信息
+         * @param {string} layerInfo.type 图层类型
+         * @param {string} layerInfo.url 图层地址
+         */
+        addLayerToView: function (layerInfo) {
+            let that = this
+            let loading = null
+
+            switch (layerInfo.type) {
+                case 'TileLayer': {
+                    // 显示Loading组件，图层加载完毕后关闭Loading组件
+                    that.showLoadingComponentAction().then(function () {
+                        loading = that.$loading({
+                            target: document.getElementById('loadingDiv'),
+                            lock: false,
+                            text: '正在加载图层...',
+                            spinner: 'el-icon-loading',
+                            background: 'rgba(0, 0, 0, 0.7)'
+                        })
+
+                        loadModules([
+                            'esri/layers/VectorTileLayer'
+                        ]).then(([
+                            EsriVectorTileLayer
+                        ]) => {
+                            let esriVectorTileLayer = new EsriVectorTileLayer({
+                                url: layerInfo.url
+                            })
+
+                            esriVectorTileLayer.when(function () {
+                                that.activateView.goTo(
+                                    esriVectorTileLayer.fullExtent.extent
+                                )
+
+                                // 关闭Loading组件
+                                loading.close()
+                                that.hideLoadingComponentAction()
+                            })
+
+                            that.activateView.map.removeAll()
+                            that.activateView.map.add(esriVectorTileLayer)
+                        })
+                    })
+                    break
+                }
+                case 'FeatureLayer': {
+                    // 显示Loading组件
+                    that.showLoadingComponentAction().then(function () {
+                        loading = that.$loading({
+                            target: document.getElementById('loadingDiv'),
+                            lock: false,
+                            text: '正在加载图层...',
+                            spinner: 'el-icon-loading',
+                            background: 'rgba(0, 0, 0, 0.7)'
+                        })
+
+                        loadModules([
+                            'esri/layers/FeatureLayer'
+                        ]).then(([
+                            EsriFeatureLayer
+                        ]) => {
+                            let esriFeatureLayer = new EsriFeatureLayer({
+                                url: layerInfo.url
+                            })
+
+                            esriFeatureLayer.when(function () {
+                                that.activateView.goTo(
+                                    esriFeatureLayer.fullExtent.extent
+                                )
+
+                                // 关闭Loading组件
+                                loading.close()
+                                that.hideLoadingComponentAction()
+                            })
+
+                            that.activateView.map.removeAll()
+                            that.activateView.map.add(esriFeatureLayer)
+                        })
+                    })
+                    break
+                }
+                default: {
+                }
+            }
+        },
+        ...mapActions({
+            showLoadingComponentAction: 'esriViewVuex/showLoadingComponent',
+            hideLoadingComponentAction: 'esriViewVuex/hideLoadingComponent'
+        })
+    },
+    watch: {
+        layerInfoFromNode (newValue) {
+            this.addLayerToView(newValue)
         }
     }
 }

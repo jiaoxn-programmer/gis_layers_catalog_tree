@@ -16,6 +16,10 @@
 </template>
 
 <script>
+import { Message } from 'element-ui'
+
+import { mapActions } from 'vuex'
+
 export default {
     name: 'CatalogTreeComponent',
     data: function () {
@@ -25,9 +29,13 @@ export default {
                     label: '基础地图',
                     children: [
                         {
-                            label: '基础地理信息'
+                            label: '基础地理信息',
+                            layerType: 'TileLayer',
+                            layerUrl: 'https://tiles.arcgis.com/tiles/cDevWdPu8Ni4rALu/arcgis/rest/services/Provinces1/VectorTileServer'
                         }, {
-                            label: '卫星影像'
+                            label: '卫星影像',
+                            layerType: 'FeatureLayer',
+                            layerUrl: 'https://services1.arcgis.com/cDevWdPu8Ni4rALu/ArcGIS/rest/services/%E7%9C%81%E7%BA%A7%E8%A1%8C%E6%94%BF%E5%8C%BA/FeatureServer/0'
                         }, {
                             label: '航拍图'
                         }, {
@@ -105,7 +113,25 @@ export default {
         /**
          * 目录树节点点击事件
          */
-        handleNodeClick: function () {
+        handleNodeClick: function (data) {
+            // 判断节点是否含有图层信息，如果有，则在地图中加载
+            if (data.hasOwnProperty('layerUrl') && data.hasOwnProperty('layerType')) {
+                let layerUrl = data.layerUrl
+                let layerType = data.layerType
+
+                // 如果图层地址和图层属性均有值，则根据类型加载对应的图层
+                if (layerUrl && layerType) {
+                    this.transferLayerInfoFromCatalogNodeAction({
+                        type: layerType,
+                        url: layerUrl
+                    })
+                } else {
+                    Message({
+                        message: '当前节点没有对应的图层，请联系管理员',
+                        type: 'error'
+                    })
+                }
+            }
         },
         /**
          * 过滤目录树节点
@@ -118,7 +144,10 @@ export default {
             }
 
             return data.label.indexOf(value) !== -1
-        }
+        },
+        ...mapActions({
+            transferLayerInfoFromCatalogNodeAction: 'catalogTreeVuex/transferLayerInfoFromCatalogNode'
+        })
     }
 }
 </script>
