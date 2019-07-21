@@ -1,10 +1,5 @@
 <template>
-    <div id="esriViewDiv"
-    v-loading="false"
-    element-loading-text="拼命加载中"
-    element-loading-spinner="el-icon-loading"
-    element-loading-background="rgba(0, 0, 0, 0.8)"
-    >
+    <div id="esriViewDiv">
         <div id="switchBtnDiv">
             <input id="switchBtn" type="button" v-model="switchBtnText"
             class="esri-component esri-widget-button esri-widget esri-interactive"
@@ -28,7 +23,8 @@ export default {
     },
     computed: {
         ...mapState('esriViewVuex', {
-            layerInfoFromNode: state => state.layerInfo
+            layerInfoFromNode: state => state.layerInfo,
+            layerFilterParams: state => state.featureLayerFilterParams
         })
     },
     data: function () {
@@ -147,94 +143,179 @@ export default {
          * @param {string} layerInfo.url 图层地址
          */
         addLayerToView: function (layerInfo) {
-            let that = this
-            let loading = null
-
             switch (layerInfo.type) {
                 case 'TileLayer': {
-                    // 显示Loading组件，图层加载完毕后关闭Loading组件
-                    that.showLoadingComponentAction().then(function () {
-                        loading = that.$loading({
-                            target: document.getElementById('loadingDiv'),
-                            lock: false,
-                            text: '正在加载图层...',
-                            spinner: 'el-icon-loading',
-                            background: 'rgba(0, 0, 0, 0.7)'
-                        })
-
-                        loadModules([
-                            'esri/layers/VectorTileLayer'
-                        ]).then(([
-                            EsriVectorTileLayer
-                        ]) => {
-                            let esriVectorTileLayer = new EsriVectorTileLayer({
-                                url: layerInfo.url
-                            })
-
-                            esriVectorTileLayer.when(function () {
-                                that.activateView.goTo(
-                                    esriVectorTileLayer.fullExtent.extent
-                                )
-
-                                // 关闭Loading组件
-                                loading.close()
-                                that.hideLoadingComponentAction()
-                            })
-
-                            that.activateView.map.removeAll()
-                            that.activateView.map.add(esriVectorTileLayer)
-                        })
-                    })
+                    this.addVectorTileLayerToView(layerInfo)
                     break
                 }
                 case 'FeatureLayer': {
-                    // 显示Loading组件
-                    that.showLoadingComponentAction().then(function () {
-                        loading = that.$loading({
-                            target: document.getElementById('loadingDiv'),
-                            lock: false,
-                            text: '正在加载图层...',
-                            spinner: 'el-icon-loading',
-                            background: 'rgba(0, 0, 0, 0.7)'
-                        })
-
-                        loadModules([
-                            'esri/layers/FeatureLayer'
-                        ]).then(([
-                            EsriFeatureLayer
-                        ]) => {
-                            let esriFeatureLayer = new EsriFeatureLayer({
-                                url: layerInfo.url
-                            })
-
-                            esriFeatureLayer.when(function () {
-                                that.activateView.goTo(
-                                    esriFeatureLayer.fullExtent.extent
-                                )
-
-                                // 关闭Loading组件
-                                loading.close()
-                                that.hideLoadingComponentAction()
-                            })
-
-                            that.activateView.map.removeAll()
-                            that.activateView.map.add(esriFeatureLayer)
-                        })
-                    })
+                    this.addFeatureLayerToView(layerInfo)
                     break
                 }
                 default: {
                 }
             }
         },
+        /**
+         * 添加矢量切片图层
+         * @param {Object} layerInfo 需要添加的图层信息
+         * @param {string} layerInfo.type 图层类型
+         * @param {string} layerInfo.url 图层地址
+         */
+        addVectorTileLayerToView: function (layerInfo) {
+            let that = this
+
+            // 显示Loading组件，图层加载完毕后关闭Loading组件
+            that.showLoadingComponentAction().then(function () {
+                const loading = that.$loading({
+                    target: document.getElementById('loadingDiv'),
+                    lock: false,
+                    text: '正在加载图层...',
+                    spinner: 'el-icon-loading',
+                    background: 'rgba(0, 0, 0, 0.7)'
+                })
+
+                loadModules([
+                    'esri/layers/VectorTileLayer'
+                ]).then(([
+                    EsriVectorTileLayer
+                ]) => {
+                    let esriVectorTileLayer = new EsriVectorTileLayer({
+                        url: layerInfo.url
+                    })
+
+                    esriVectorTileLayer.when(function () {
+                        that.activateView.goTo(
+                            esriVectorTileLayer.fullExtent.extent
+                        )
+
+                        // 关闭Loading组件
+                        loading.close()
+                        that.hideLoadingComponentAction()
+                    })
+
+                    that.activateView.map.removeAll()
+                    that.activateView.map.add(esriVectorTileLayer)
+                })
+            })
+        },
+        /**
+         * 添加要素图层
+         * @param {Object} layerInfo 需要添加的图层信息
+         * @param {string} layerInfo.type 图层类型
+         * @param {string} layerInfo.url 图层地址
+         */
+        addFeatureLayerToView: function (layerInfo) {
+            let that = this
+
+            // 显示Loading组件
+            that.showLoadingComponentAction().then(function () {
+                const loading = that.$loading({
+                    target: document.getElementById('loadingDiv'),
+                    lock: false,
+                    text: '正在加载图层...',
+                    spinner: 'el-icon-loading',
+                    background: 'rgba(0, 0, 0, 0.7)'
+                })
+
+                loadModules([
+                    'esri/layers/FeatureLayer'
+                ]).then(([
+                    EsriFeatureLayer
+                ]) => {
+                    let esriFeatureLayer = new EsriFeatureLayer({
+                        url: layerInfo.url
+                    })
+
+                    esriFeatureLayer.when(function () {
+                        that.activateView.goTo(
+                            esriFeatureLayer.fullExtent.extent
+                        )
+
+                        // 获取图层的统计信息
+                        that.gatherStatisticsOfFeatureLayer(esriFeatureLayer)
+
+                        // 关闭Loading组件
+                        loading.close()
+                        that.hideLoadingComponentAction()
+                    })
+
+                    that.activateView.map.removeAll()
+                    that.activateView.map.add(esriFeatureLayer)
+                })
+            })
+        },
+        /**
+         * 统计要素图层的信息
+         * @param {Object} featureLayer 要统计的要素图层
+         */
+        gatherStatisticsOfFeatureLayer: function (featureLayer) {
+            let that = this
+
+            const statisticsFields = [
+                'POPU',
+                'POPU_94'
+            ]
+
+            const statisticDefinitiond = statisticsFields.map(function (fieldName) {
+                return {
+                    onStatisticField: fieldName,
+                    outStatisticFieldName: fieldName + '_TOTAL',
+                    statisticType: 'sum'
+                }
+            })
+
+            const query = featureLayer.createQuery()
+            query.outStatistics = statisticDefinitiond
+            query.geometry = featureLayer.fullExtent.extent
+
+            featureLayer.queryFeatures(query).then(function (response) {
+                if (response.features.length > 0) {
+                    that.$router.push({
+                        name: 'StatisticsResultPage'
+                    })
+
+                    let attributes = response.features[0].attributes
+
+                    that.transferEChartContentAction({
+                        titleText: '图层统计结果',
+                        titleSubText: '纯属虚构',
+                        eChartName: '图层统计结果',
+                        eChartData: [
+                            {
+                                value: attributes['POPU_TOTAL'],
+                                name: 'POPU_TOTAL',
+                                filed: 'NAMEEN',
+                                filedValue: 'Qinghai'
+                            }, {
+                                value: attributes['POPU_94_TOTAL'],
+                                name: 'POPU_94_TOTAL',
+                                filed: 'NAMEEN',
+                                filedValue: 'Gansu'
+                            }
+                        ]
+                    })
+                } else {
+                    return {}
+                }
+            })
+        },
         ...mapActions({
             showLoadingComponentAction: 'esriViewVuex/showLoadingComponent',
-            hideLoadingComponentAction: 'esriViewVuex/hideLoadingComponent'
+            hideLoadingComponentAction: 'esriViewVuex/hideLoadingComponent',
+            transferEChartContentAction: 'esriViewVuex/transferEChartContent'
         })
     },
     watch: {
         layerInfoFromNode (newValue) {
             this.addLayerToView(newValue)
+        },
+        layerFilterParams (newValue) {
+            let definitionExpression = newValue['filed'] + ' = \'' + newValue['filedValue'] + '\''
+
+            let featureLayer = this.activateView.map.layers.items[0]
+            featureLayer.definitionExpression = definitionExpression
+            featureLayer.refresh()
         }
     }
 }

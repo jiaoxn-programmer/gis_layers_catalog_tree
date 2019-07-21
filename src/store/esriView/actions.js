@@ -26,3 +26,24 @@ export const showLoadingComponent = function ({ dispatch }) {
 export const hideLoadingComponent = function ({ dispatch }) {
     dispatch('loadingVuex/updateLoadingComponentStatus', false, { root: true })
 }
+
+/**
+ * 传递eChart内容
+ * @param {Object} context对象
+ * @param {Object} eChartContent.titleText 主标题
+ * @param {string} eChartContent.titleSubText 此标题
+ * @param {string} eChartContent.eChartName eChart的名称
+ * @param {Array} eChartContent.eChartData eChart的数据
+ */
+export const transferEChartContent = function ({ dispatch }, eChartContent) {
+    dispatch('statisticsResult/setEChartContent', eChartContent, { root: true })
+}
+
+/**
+ * 更新图层过滤信息
+ * @param {Object} context对象
+ * @param {Object} layerFilterParams 图层过滤参数信息
+ */
+export const updateLayerFilterParams = function ({ commit }, layerFilterParams) {
+    commit(types.UPDATE_LAYER_FILTER_PARAMS, layerFilterParams)
+}

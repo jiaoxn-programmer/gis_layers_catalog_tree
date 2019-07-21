@@ -1,6 +1,9 @@
 <template>
-    <div id="catalogTreeDiv">
-        <catalog-tree-component></catalog-tree-component>
+    <div>
+        <div id="catalogTreeDiv">
+            <catalog-tree-component></catalog-tree-component>
+        </div>
+        <router-view></router-view>
     </div>
 </template>
 
