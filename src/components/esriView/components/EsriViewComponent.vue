@@ -8,6 +8,18 @@
         </div>
         <div id="sceneViewLayerListContainerDiv" class="animated fadeInRight" v-show="isShowLayerListWidget"></div>
         <div id="mapViewLayerListContainerDiv" class="animated fadeInRight" v-show="isShowLayerListWidget"></div>
+        <!-- <div id="sceneViewMeasureDiv">
+            <button id="sceneViewDistanceButton" class="action-button esri-icon-minus" type="button"
+            title="测量2点或者多点之前的距离"></button>
+            <button id="sceneViewAreaButton" class="action-button esri-icon-polygon" type="button"
+            title="测量面积"></button>
+        </div>
+        <div id="mapViewMeasureDiv">
+            <button id="mapViewDistanceButton" class="action-button esri-icon-minus" type="button"
+            title="测量2点或者多点之前的距离"></button>
+            <button id="mapViewAreaButton" class="action-button esri-icon-polygon" type="button"
+            title="测量面积"></button>
+        </div> -->
     </div>
 </template>
 
@@ -88,6 +100,9 @@ export default {
                     esriSceneViewLayerListWidget.on('trigger-action', that.layerListWidgetTriggerEvent)
                     that.esriSceneView.ui.add(esriSceneViewLayerListWidget)
 
+                    // SceneView添加测量工具
+                    // that.esriSceneView.ui.add('sceneViewMeasureDiv', 'top-right')
+
                     // 初始化MapView
                     initialEsriViewParams.container = null
                     that.esriMapView = createEsriView(initialEsriViewParams, '2d')
@@ -101,6 +116,9 @@ export default {
                     })
                     esriMapViewLayerListWidget.on('trigger-action', that.layerListWidgetTriggerEvent)
                     that.esriMapView.ui.add(esriMapViewLayerListWidget)
+
+                    // MapView添加测量工具
+                    // that.esriMapView.ui.add('mapViewMeasureDiv', 'top-right')
 
                     // 设置当前激活的view
                     that.activateView = that.esriSceneView
@@ -407,6 +425,9 @@ export default {
             let featureLayer = this.activateView.map.layers.items[0]
             featureLayer.definitionExpression = definitionExpression
             featureLayer.refresh()
+        },
+        zoomToZone (zoneExtent) {
+
         }
     }
 }
