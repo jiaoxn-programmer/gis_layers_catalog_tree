@@ -253,7 +253,8 @@ export default {
                 ]) => {
                     let esriFeatureLayer = new EsriFeatureLayer({
                         url: layerInfo.url,
-                        title: layerInfo.title
+                        title: layerInfo.title,
+                        popupTemplate: that.generateFeatureLayerPopupTemplate()
                     })
 
                     esriFeatureLayer.when(function () {
@@ -363,6 +364,32 @@ export default {
             } else if (actionId === 'information') {
                 window.open(targetLayer.url)
             }
+        },
+        /**
+         * 生成要素图层的PopupTemplate
+         * @return {Object} 要素图层的PopupTemplate
+         */
+        generateFeatureLayerPopupTemplate: function () {
+            let featureLayerPopupTemplate = {
+                title: '{NAME}',
+                content: [
+                    {
+                        type: 'fields',
+                        fieldInfos: [
+                            {
+                                fieldName: 'NAME',
+                                label: '名称'
+                            },
+                            {
+                                fieldName: 'AREA',
+                                label: '面积'
+                            }
+                        ]
+                    }
+                ]
+            }
+
+            return featureLayerPopupTemplate
         },
         ...mapActions({
             showLoadingComponentAction: 'esriViewVuex/showLoadingComponent',
