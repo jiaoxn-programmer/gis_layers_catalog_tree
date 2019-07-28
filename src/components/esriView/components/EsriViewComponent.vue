@@ -6,6 +6,8 @@
             @click="switchBetween2DAnd3D"
             />
         </div>
+        <div id="sceneViewLayerListContainerDiv" class="animated fadeInRight" v-show="isShowLayerListWidget"></div>
+        <div id="mapViewLayerListContainerDiv" class="animated fadeInRight" v-show="isShowLayerListWidget"></div>
     </div>
 </template>
 
@@ -33,7 +35,8 @@ export default {
             esriMapView: null,
             activateView: null,
             containerDiv: 'esriViewDiv',
-            switchBtnText: '2D'
+            switchBtnText: '2D',
+            isShowLayerListWidget: false
         }
     },
     methods: {
@@ -78,9 +81,12 @@ export default {
 
                     // SceneView添加LayerListWidget
                     let esriSceneViewLayerListWidget = new EsriLayerList({
-                        view: that.esriSceneView
+                        view: that.esriSceneView,
+                        container: 'sceneViewLayerListContainerDiv',
+                        listItemCreatedFunction: that.layerListWidgetDefineActions
                     })
-                    that.esriSceneView.ui.add(esriSceneViewLayerListWidget, 'top-right')
+                    esriSceneViewLayerListWidget.on('trigger-action', that.layerListWidgetTriggerEvent)
+                    that.esriSceneView.ui.add(esriSceneViewLayerListWidget)
 
                     // 初始化MapView
                     initialEsriViewParams.container = null
@@ -89,9 +95,12 @@ export default {
 
                     // MapView添加LayerListWidget
                     let esriMapViewLayerListWidget = new EsriLayerList({
-                        view: that.esriMapView
+                        view: that.esriMapView,
+                        container: 'mapViewLayerListContainerDiv',
+                        listItemCreatedFunction: that.layerListWidgetDefineActions
                     })
-                    that.esriMapView.ui.add(esriMapViewLayerListWidget, 'top-right')
+                    esriMapViewLayerListWidget.on('trigger-action', that.layerListWidgetTriggerEvent)
+                    that.esriMapView.ui.add(esriMapViewLayerListWidget)
 
                     // 设置当前激活的view
                     that.activateView = that.esriSceneView
@@ -171,6 +180,8 @@ export default {
                 default: {
                 }
             }
+
+            this.isShowLayerListWidget = true
         },
         /**
          * 添加矢量切片图层
@@ -318,6 +329,41 @@ export default {
                 }
             })
         },
+        /**
+         * LayerListWidget微件的listItemCreatedFunction定义
+         * @param {Object} event
+         */
+        layerListWidgetDefineActions: function (event) {
+            let item = event.item
+
+            item.actionsSections = [
+                [
+                    {
+                        title: '缩放至图层范围',
+                        className: 'esri-icon-zoom-out-fixed',
+                        id: 'full-extent'
+                    }, {
+                        title: '图层信息',
+                        className: 'esri-icon-description',
+                        id: 'information'
+                    }
+                ]
+            ]
+        },
+        /**
+         * LayerListWidget图层的Item对应的操作事件
+         * @param {Object} event
+         */
+        layerListWidgetTriggerEvent: function (event) {
+            let actionId = event.action.id
+            let targetLayer = event.item.layer
+
+            if (actionId === 'full-extent') {
+                this.activateView.goTo(targetLayer.fullExtent)
+            } else if (actionId === 'information') {
+                window.open(targetLayer.url)
+            }
+        },
         ...mapActions({
             showLoadingComponentAction: 'esriViewVuex/showLoadingComponent',
             hideLoadingComponentAction: 'esriViewVuex/hideLoadingComponent',
@@ -367,5 +413,17 @@ export default {
 #switchBtnDiv input {
     border: none;
     box-shadow: rgba(0, 0, 0, 0.3) 0px 1px 2px;
+}
+
+/* SceneView中存放LayerListWidget的div样式 */
+#sceneViewLayerListContainerDiv {
+    top: 15px;
+    right: 0px;
+}
+
+/* MapView中存放LayerListWidget的div样式 */
+#mapViewLayerListContainerDiv {
+    top: 15px;
+    right: 0px;
 }
 </style>
