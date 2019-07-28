@@ -152,24 +152,26 @@ export default {
 }
 </script>
 
-<style>
-/* 设置存放el-input的div的背景 */
-.inputDiv {
-    background-color: rgba(0, 0, 0, 0.5);
-    padding: 5px;
-}
-
+<style scoped>
 /* 修改默认的el-input的样式 */
-.el-input__inner {
+.el-input >>> .el-input__inner {
     background-color: rgba(255, 255, 255, 0.2);
     color: white;
     line-height: 30px;
     height: 30px;
 }
+</style>
+
+<style>
+/* 设置存放el-input的div的背景 */
+.inputDiv {
+    background-color: transparent;
+    padding: 5px;
+}
 
 /* 修改tree控件的背景颜色、字体颜色和内边距 */
 .el-tree {
-    background-color: rgba(0, 0, 0, 0.5);
+    background-color: transparent;
     color: white;
     padding: 5px 0px;
 }
