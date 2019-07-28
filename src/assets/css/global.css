@@ -2,7 +2,6 @@
 .click-span {
     position: absolute;
     top: 50%;
-    right: -4px;
     -ms-transform: translateY(-50%);
     transform: translateY(-50%);
     color: rgba(255, 255, 255, 0.5);

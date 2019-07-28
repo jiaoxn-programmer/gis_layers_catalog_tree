@@ -74,13 +74,12 @@ export default {
 #catalogTreeDiv {
     position: absolute;
     top: 50%;
-    /* -ms-transform: translateY(-50%); */
-    /* transform: translateY(-50%); */
     background-color: rgba(1, 6, 17, 0.8);
-    /* padding-right: 10px; */
 }
 
 .left-click-span {
-    transform: rotate(90deg);
+    right: -4px;
+    -ms-transform: translateY(-50%) rotate(90deg);
+    transform: translateY(-50%) rotate(90deg);
 }
 </style>
