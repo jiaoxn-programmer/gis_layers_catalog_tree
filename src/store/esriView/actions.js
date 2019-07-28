@@ -6,6 +6,7 @@ import * as types from './mutation_types'
  * @param {Object} layerInfo 要添加的图层信息
  * @param {string} layerInfo.type 图层类型信息
  * @param {string} layerInfo.url 图层URL地址
+ * @param {string} layerInfo.title 图层标题
  */
 export const updateStateLayerInfo = function ({ commit }, layerInfo) {
     commit(types.UPDATE_LAYER_INFO, layerInfo)

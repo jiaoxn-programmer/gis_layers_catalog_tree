@@ -31,11 +31,13 @@ export default {
                         {
                             label: '基础地理信息',
                             layerType: 'TileLayer',
-                            layerUrl: 'https://tiles.arcgis.com/tiles/cDevWdPu8Ni4rALu/arcgis/rest/services/Provinces1/VectorTileServer'
+                            layerUrl: 'https://tiles.arcgis.com/tiles/cDevWdPu8Ni4rALu/arcgis/rest/services/Provinces1/VectorTileServer',
+                            layerTitle: '矢量切片图层'
                         }, {
                             label: '卫星影像',
                             layerType: 'FeatureLayer',
-                            layerUrl: 'https://services1.arcgis.com/cDevWdPu8Ni4rALu/ArcGIS/rest/services/%E7%9C%81%E7%BA%A7%E8%A1%8C%E6%94%BF%E5%8C%BA/FeatureServer/0'
+                            layerUrl: 'https://services1.arcgis.com/cDevWdPu8Ni4rALu/ArcGIS/rest/services/%E7%9C%81%E7%BA%A7%E8%A1%8C%E6%94%BF%E5%8C%BA/FeatureServer/0',
+                            layerTitle: '要素服务图层'
                         }, {
                             label: '航拍图'
                         }, {
@@ -115,15 +117,17 @@ export default {
          */
         handleNodeClick: function (data) {
             // 判断节点是否含有图层信息，如果有，则在地图中加载
-            if (data.hasOwnProperty('layerUrl') && data.hasOwnProperty('layerType')) {
+            if (data.hasOwnProperty('layerUrl') && data.hasOwnProperty('layerType') && data.hasOwnProperty('layerTitle')) {
                 let layerUrl = data.layerUrl
                 let layerType = data.layerType
+                let layerTitle = data.layerTitle
 
                 // 如果图层地址和图层属性均有值，则根据类型加载对应的图层
-                if (layerUrl && layerType) {
+                if (layerUrl && layerType && layerTitle) {
                     this.transferLayerInfoFromCatalogNodeAction({
                         type: layerType,
-                        url: layerUrl
+                        url: layerUrl,
+                        title: layerTitle
                     })
                 } else {
                     Message({

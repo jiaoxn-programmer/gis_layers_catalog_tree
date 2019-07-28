@@ -55,11 +55,13 @@ export default {
                 loadModules([
                     'esri/Map',
                     'esri/views/MapView',
-                    'esri/views/SceneView'
+                    'esri/views/SceneView',
+                    'esri/widgets/LayerList'
                 ]).then(([
                     EsriMap,
                     EsriMapView,
-                    EsriSceneView
+                    EsriSceneView,
+                    EsriLayerList
                 ]) => {
                     let initialEsriViewParams = {
                         container: that.containerDiv
@@ -73,12 +75,26 @@ export default {
                     // 初始化SceneView
                     that.esriSceneView = createEsriView(initialEsriViewParams, '3d')
                     that.esriSceneView.map = esriMap
-                    that.activateView = that.esriSceneView
+
+                    // SceneView添加LayerListWidget
+                    let esriSceneViewLayerListWidget = new EsriLayerList({
+                        view: that.esriSceneView
+                    })
+                    that.esriSceneView.ui.add(esriSceneViewLayerListWidget, 'top-right')
 
                     // 初始化MapView
                     initialEsriViewParams.container = null
                     that.esriMapView = createEsriView(initialEsriViewParams, '2d')
                     that.esriMapView.map = esriMap
+
+                    // MapView添加LayerListWidget
+                    let esriMapViewLayerListWidget = new EsriLayerList({
+                        view: that.esriMapView
+                    })
+                    that.esriMapView.ui.add(esriMapViewLayerListWidget, 'top-right')
+
+                    // 设置当前激活的view
+                    that.activateView = that.esriSceneView
 
                     // 监听View的加载完成事件
                     that.activateView.when(function () {
@@ -204,6 +220,7 @@ export default {
          * @param {Object} layerInfo 需要添加的图层信息
          * @param {string} layerInfo.type 图层类型
          * @param {string} layerInfo.url 图层地址
+         * @param {string} layerInfo.title 图层标题
          */
         addFeatureLayerToView: function (layerInfo) {
             let that = this
@@ -224,7 +241,8 @@ export default {
                     EsriFeatureLayer
                 ]) => {
                     let esriFeatureLayer = new EsriFeatureLayer({
-                        url: layerInfo.url
+                        url: layerInfo.url,
+                        title: layerInfo.title
                     })
 
                     esriFeatureLayer.when(function () {
@@ -324,7 +342,7 @@ export default {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style>
 /* 引用ArcGIS API For JS的样式文件 */
-@import url('https://js.arcgis.com/4.12/esri/themes/light/main.css');
+@import url('https://js.arcgis.com/4.12/esri/themes/dark/main.css');
 
 /* 设置存储View的Div的高度和宽度 */
 #esriViewDiv {
