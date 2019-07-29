@@ -18,6 +18,8 @@
 </template>
 
 <script>
+import { EventBus } from '@/event-bus/event-bus.js'
+
 export default {
     name: 'FunctionMenuComponent',
     data: function () {
@@ -42,7 +44,13 @@ export default {
          * @param {String} zoneIndex 指定区域的索引值
          */
         zoomToSomeZone (zoneIndex) {
-            console.log(zoneIndex)
+            EventBus.$emit('zoomToSomeZone', {
+                top: 30.736937,
+                bottom: 30.614261,
+                left: 103.890247,
+                right: 104.087962,
+                wkid: 4326
+            })
         },
         /**
          * 地理测量

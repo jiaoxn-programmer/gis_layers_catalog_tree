@@ -29,11 +29,38 @@ import { mapState, mapActions } from 'vuex'
 import { loadModules } from 'esri-loader'
 import { setTimeout } from 'timers'
 
+import { EventBus } from '@/event-bus/event-bus.js'
+
 export default {
     name: 'EsriViewComponent',
     mounted () {
+        let that = this
+
         // 初始化当前View
         this.initEsriView()
+
+        // 监听缩放到指定区域
+        EventBus.$on('zoomToSomeZone', function (zoneExtentParams) {
+            loadModules([
+                'esri/geometry/Extent',
+                'esri/geometry/Geometry',
+                'esri/geometry/SpatialReference'
+            ]).then(([
+                EsriExtent,
+                EsriGeometry,
+                EsriSpatialReference
+            ]) => {
+                let zoneExtent = new EsriExtent({
+                    xmax: zoneExtentParams.right,
+                    xmin: zoneExtentParams.left,
+                    ymax: zoneExtentParams.top,
+                    ymin: zoneExtentParams.bottom,
+                    spatialReference: new EsriSpatialReference(zoneExtentParams.wkid)
+                })
+
+                that.activateView.goTo(zoneExtent)
+            })
+        })
     },
     computed: {
         ...mapState('esriViewVuex', {
