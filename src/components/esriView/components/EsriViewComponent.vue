@@ -29,6 +29,8 @@ import { mapState, mapActions } from 'vuex'
 import { loadModules } from 'esri-loader'
 import { setTimeout } from 'timers'
 
+import { Message } from 'element-ui'
+
 import { EventBus } from '@/event-bus/event-bus.js'
 
 export default {
@@ -60,6 +62,11 @@ export default {
 
                 that.activateView.goTo(zoneExtent)
             })
+        })
+
+        // 监听点击查询
+        EventBus.$on('queryByClick', function () {
+            that.queryByClick()
         })
     },
     computed: {
@@ -298,8 +305,7 @@ export default {
                 ]) => {
                     let esriFeatureLayer = new EsriFeatureLayer({
                         url: layerInfo.url,
-                        title: layerInfo.title,
-                        popupTemplate: that.generateFeatureLayerPopupTemplate()
+                        title: layerInfo.title
                     })
 
                     esriFeatureLayer.when(function () {
@@ -313,6 +319,14 @@ export default {
                         // 关闭Loading组件
                         loading.close()
                         that.hideLoadingComponentAction()
+                    })
+
+                    esriFeatureLayer.on('layerview-destroy', function () {
+                        esriFeatureLayer.popupTemplate = null
+
+                        that.activateView.popup.close()
+
+                        that.setActivateMenuIndexAction('-1')
                     })
 
                     that.activateView.map.removeAll()
@@ -436,10 +450,40 @@ export default {
 
             return featureLayerPopupTemplate
         },
+        /**
+         * 点击查询要素图层的属性
+         */
+        queryByClick: function () {
+            let esriViewLayers = this.activateView.map.layers.items
+            let featureLayer = null
+            for (let index = 0; index < esriViewLayers.length; index++) {
+                let esriViewLayer = esriViewLayers[index]
+
+                if (esriViewLayer.type === 'feature') {
+                    featureLayer = esriViewLayer
+                    break
+                }
+            }
+
+            if (featureLayer) {
+                featureLayer.popupTemplate = this.generateFeatureLayerPopupTemplate()
+
+                Message({
+                    message: '点击要素图层查看其属性信息',
+                    type: 'success'
+                })
+            } else {
+                Message({
+                    message: '请加载相应的要素图层',
+                    type: 'warning'
+                })
+            }
+        },
         ...mapActions({
             showLoadingComponentAction: 'esriViewVuex/showLoadingComponent',
             hideLoadingComponentAction: 'esriViewVuex/hideLoadingComponent',
-            transferEChartContentAction: 'esriViewVuex/transferEChartContent'
+            transferEChartContentAction: 'esriViewVuex/transferEChartContent',
+            setActivateMenuIndexAction: 'esriViewVuex/setActivateMenuIndex'
         })
     },
     watch: {

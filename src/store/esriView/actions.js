@@ -48,3 +48,12 @@ export const transferEChartContent = function ({ dispatch }, eChartContent) {
 export const updateLayerFilterParams = function ({ commit }, layerFilterParams) {
     commit(types.UPDATE_LAYER_FILTER_PARAMS, layerFilterParams)
 }
+
+/**
+ * 取消功能菜单的默认选中项
+ * @param {Object} context对象
+ * @param {boolean} activateMenuIndex 激活的菜单的索引值
+ */
+export const setActivateMenuIndex = function ({ dispatch }, activateMenuIndex) {
+    dispatch('functionMenuVuex/setActivateMenuIndex', activateMenuIndex, { root: true })
+}

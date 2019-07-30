@@ -1,5 +1,6 @@
 <template>
-    <el-menu default-active="activateMenuIndex" mode="horizontal" background-color="rgba(1, 6, 17, 0.8)"
+    <el-menu :default-active="activateMenuIndex" mode="horizontal"
+    background-color="rgba(1, 6, 17, 0.8)"
     @select="handleSelect" text-color="#FFF" active-text-color="#FFD04B">
         <el-submenu index="1">
             <template slot="title">选择区域</template>
@@ -18,14 +19,15 @@
 </template>
 
 <script>
+import { mapState } from 'vuex'
 import { EventBus } from '@/event-bus/event-bus.js'
 
 export default {
     name: 'FunctionMenuComponent',
-    data: function () {
-        return {
-            activateMenuIndex: '1'
-        }
+    computed: {
+        ...mapState('functionMenuVuex', {
+            activateMenuIndex: state => state.activateMenuIndex
+        })
     },
     methods: {
         handleSelect (key, keyPath) {
@@ -68,7 +70,7 @@ export default {
          * 点击查询
          */
         queryByClick () {
-
+            EventBus.$emit('queryByClick')
         }
     }
 }

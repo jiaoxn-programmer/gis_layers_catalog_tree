@@ -6,6 +6,7 @@ import esriViewVuexConfig from './esriView/index'
 import catalogTreeVuexConfig from './catalogTree/index'
 import loadingVuexConfig from './loading/index'
 import statisticsResultConfig from './statisticsResult/index'
+import functionMenuConfig from './functionMenu/index'
 
 Vue.use(Vuex)
 
@@ -14,6 +15,7 @@ export default new Vuex.Store({
         esriViewVuex: esriViewVuexConfig,
         catalogTreeVuex: catalogTreeVuexConfig,
         loadingVuex: loadingVuexConfig,
-        statisticsResult: statisticsResultConfig
+        statisticsResult: statisticsResultConfig,
+        functionMenuVuex: functionMenuConfig
     }
 })
