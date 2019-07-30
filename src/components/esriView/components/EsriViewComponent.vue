@@ -68,6 +68,11 @@ export default {
         EventBus.$on('queryByClick', function () {
             that.queryByClick()
         })
+
+        // 监听框选查询
+        EventBus.$on('queryByExtent', function () {
+            that.queryByExtent()
+        })
     },
     computed: {
         ...mapState('esriViewVuex', {
@@ -313,9 +318,6 @@ export default {
                             esriFeatureLayer.fullExtent.extent
                         )
 
-                        // 获取图层的统计信息
-                        that.gatherStatisticsOfFeatureLayer(esriFeatureLayer)
-
                         // 关闭Loading组件
                         loading.close()
                         that.hideLoadingComponentAction()
@@ -337,8 +339,9 @@ export default {
         /**
          * 统计要素图层的信息
          * @param {Object} featureLayer 要统计的要素图层
+         * @param {Object} geometry 查询范围
          */
-        gatherStatisticsOfFeatureLayer: function (featureLayer) {
+        gatherStatisticsOfFeatureLayer: function (featureLayer, geometry) {
             let that = this
 
             const statisticsFields = [
@@ -356,7 +359,7 @@ export default {
 
             const query = featureLayer.createQuery()
             query.outStatistics = statisticDefinitiond
-            query.geometry = featureLayer.fullExtent.extent
+            query.geometry = geometry
 
             featureLayer.queryFeatures(query).then(function (response) {
                 if (response.features.length > 0) {
@@ -383,6 +386,8 @@ export default {
                                 filedValue: 'Gansu'
                             }
                         ]
+                    }).then(function () {
+                        EventBus.$emit('updatePieContent')
                     })
                 } else {
                     return {}
@@ -471,6 +476,94 @@ export default {
                 Message({
                     message: '点击要素图层查看其属性信息',
                     type: 'success'
+                })
+            } else {
+                Message({
+                    message: '请加载相应的要素图层',
+                    type: 'warning'
+                })
+            }
+        },
+        /**
+         * 框选查询
+         */
+        queryByExtent: function () {
+            let that = this
+
+            let esriViewLayers = this.activateView.map.layers.items
+            let featureLayer = null
+            for (let index = 0; index < esriViewLayers.length; index++) {
+                let esriViewLayer = esriViewLayers[index]
+
+                if (esriViewLayer.type === 'feature') {
+                    featureLayer = esriViewLayer
+                    break
+                }
+            }
+
+            if (featureLayer) {
+                loadModules([
+                    'esri/views/draw/Draw',
+                    'esri/Graphic'
+                ]).then(([
+                    EsriDraw,
+                    EsriGraphic
+                ]) => {
+                    let esriDraw = new EsriDraw({
+                        view: that.activateView
+                    })
+
+                    let esriDrawAction = esriDraw.create('polygon')
+
+                    that.activateView.focus()
+
+                    esriDrawAction.on('vertex-add', function (evt) {
+                        createPolygonGraphic(evt.vertices, false)
+                    })
+
+                    esriDrawAction.on('vertex-remove', function (evt) {
+                        createPolygonGraphic(evt.vertices, false)
+                    })
+
+                    esriDrawAction.on('cursor-update', function (evt) {
+                        createPolygonGraphic(evt.vertices, false)
+                    })
+
+                    esriDrawAction.on('draw-complete', function (evt) {
+                        createPolygonGraphic(evt.vertices, true)
+                    })
+
+                    function createPolygonGraphic (vertices, isComplete) {
+                        that.activateView.graphics.removeAll()
+
+                        if (vertices.length > 1) {
+                            let polygon = {
+                                type: 'polygon',
+                                rings: vertices,
+                                spatialReference: that.activateView.spatialReference
+                            }
+
+                            let graphic = new EsriGraphic({
+                                geometry: polygon,
+                                symbol: {
+                                    type: 'simple-fill',
+                                    color: 'red',
+                                    style: 'solid',
+                                    outline: {
+                                        color: 'white',
+                                        width: 1
+                                    }
+                                }
+                            })
+
+                            that.activateView.graphics.add(graphic)
+
+                            if (isComplete) {
+                                that.gatherStatisticsOfFeatureLayer(featureLayer, polygon)
+                                that.setActivateMenuIndexAction('-1')
+                            }
+                        }
+                    }
                 })
             } else {
                 Message({

@@ -64,7 +64,7 @@ export default {
          * 框选查询
          */
         queryByExtent () {
-
+            EventBus.$emit('queryByExtent')
         },
         /**
          * 点击查询
