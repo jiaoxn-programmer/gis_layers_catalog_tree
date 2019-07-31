@@ -8,18 +8,6 @@
         </div>
         <div id="sceneViewLayerListContainerDiv" class="animated fadeInRight" v-show="isShowLayerListWidget"></div>
         <div id="mapViewLayerListContainerDiv" class="animated fadeInRight" v-show="isShowLayerListWidget"></div>
-        <!-- <div id="sceneViewMeasureDiv">
-            <button id="sceneViewDistanceButton" class="action-button esri-icon-minus" type="button"
-            title="测量2点或者多点之前的距离"></button>
-            <button id="sceneViewAreaButton" class="action-button esri-icon-polygon" type="button"
-            title="测量面积"></button>
-        </div>
-        <div id="mapViewMeasureDiv">
-            <button id="mapViewDistanceButton" class="action-button esri-icon-minus" type="button"
-            title="测量2点或者多点之前的距离"></button>
-            <button id="mapViewAreaButton" class="action-button esri-icon-polygon" type="button"
-            title="测量面积"></button>
-        </div> -->
     </div>
 </template>
 
@@ -73,6 +61,16 @@ export default {
         EventBus.$on('queryByExtent', function () {
             that.queryByExtent()
         })
+
+        // 监听距离测量
+        EventBus.$on('measureDistance', function () {
+            that.measureDistance()
+        })
+
+        // 监听面积测量
+        EventBus.$on('measureArea', function () {
+            that.measureArea()
+        })
     },
     computed: {
         ...mapState('esriViewVuex', {
@@ -87,7 +85,8 @@ export default {
             activateView: null,
             containerDiv: 'esriViewDiv',
             switchBtnText: '2D',
-            isShowLayerListWidget: false
+            isShowLayerListWidget: false,
+            activateMeasureWidget: null
         }
     },
     methods: {
@@ -570,6 +569,92 @@ export default {
                     message: '请加载相应的要素图层',
                     type: 'warning'
                 })
+            }
+        },
+        /**
+         * 距离测量
+         */
+        measureDistance: function () {
+            this.setActivateMeasureWidget(null)
+            this.setActivateMeasureWidget('distance')
+        },
+        /**
+         * 面积测量
+         */
+        measureArea: function () {
+            this.setActivateMeasureWidget(null)
+            this.setActivateMeasureWidget('area')
+        },
+        setActivateMeasureWidget: function (type) {
+            let that = this
+
+            switch (type) {
+                case 'distance':
+                    if (this.activateView.type === '2d') {
+                        loadModules([
+                            'esri/widgets/DistanceMeasurement2D'
+                        ]).then(([
+                            EsriDistanceMeasurement2D
+                        ]) => {
+                            that.activateMeasureWidget = new EsriDistanceMeasurement2D({
+                                view: that.activateView
+                            })
+                            that.activateMeasureWidget.viewModel.newMeasurement()
+
+                            that.activateView.ui.add(that.activateMeasureWidget, 'top-right')
+                        })
+                    } else {
+                        loadModules([
+                            'esri/widgets/DirectLineMeasurement3D'
+                        ]).then(([
+                            EsriDirectLineMeasurement3D
+                        ]) => {
+                            that.activateMeasureWidget = new EsriDirectLineMeasurement3D({
+                                view: that.activateView
+                            })
+                            that.activateMeasureWidget.viewModel.newMeasurement()
+
+                            that.activateView.ui.add(that.activateMeasureWidget, 'top-right')
+                        })
+                    }
+                    break
+                case 'area':
+                    if (this.activateView.type === '2d') {
+                        loadModules([
+                            'esri/widgets/AreaMeasurement2D'
+                        ]).then(([
+                            EsriAreaMeasurement2D
+                        ]) => {
+                            that.activateMeasureWidget = new EsriAreaMeasurement2D({
+                                view: that.activateView
+                            })
+                            that.activateMeasureWidget.viewModel.newMeasurement()
+
+                            that.activateView.ui.add(that.activateMeasureWidget, 'top-right')
+                        })
+                    } else {
+                        loadModules([
+                            'esri/widgets/AreaMeasurement3D'
+                        ]).then(([
+                            EsriAreaMeasurement3D
+                        ]) => {
+                            that.activateMeasureWidget = new EsriAreaMeasurement3D({
+                                view: that.activateView
+                            })
+                            that.activateMeasureWidget.viewModel.newMeasurement()
+
+                            that.activateView.ui.add(that.activateMeasureWidget, 'top-right')
+                        })
+                    }
+                    break
+                case null:
+                    if (this.activateMeasureWidget) {
+                        this.activateView.ui.remove(this.activateMeasureWidget)
+
+                        this.activateMeasureWidget.destroy()
+                        this.activateMeasureWidget = null
+                    }
+                    break
             }
         },
         ...mapActions({

@@ -9,7 +9,11 @@
                 <el-menu-item index="1-1-1">青羊区</el-menu-item>
             </el-submenu>
         </el-submenu>
-        <el-menu-item index="2">测量</el-menu-item>
+        <el-submenu index="2">
+            <template slot="title">地理测量</template>
+            <el-menu-item index="2-1">距离测量</el-menu-item>
+            <el-menu-item index="2-2">面积测量</el-menu-item>
+        </el-submenu>
         <el-submenu index="3">
             <template slot="title">地理查询</template>
             <el-menu-item index="3-1">框选查询</el-menu-item>
@@ -31,8 +35,10 @@ export default {
     },
     methods: {
         handleSelect (key, keyPath) {
-            if (key === '2') {
-                this.geographicSurevey()
+            if (key === '2-1') {
+                this.measureDistance()
+            } else if (key === '2-2') {
+                this.measureArea()
             } else if (key === '3-1') {
                 this.queryByExtent()
             } else if (key === '3-2') {
@@ -55,10 +61,16 @@ export default {
             })
         },
         /**
-         * 地理测量
+         * 距离测量
          */
-        geographicSurevey () {
-
+        measureDistance () {
+            EventBus.$emit('measureDistance')
+        },
+        /**
+         * 面积测量
+         */
+        measureArea () {
+            EventBus.$emit('measureArea')
         },
         /**
          * 框选查询
