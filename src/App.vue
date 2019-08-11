@@ -1,19 +1,16 @@
 <template>
     <div>
-        <HeaderBarComponent></HeaderBarComponent>
         <LoadingComponent></LoadingComponent>
         <router-view/>
     </div>
 </template>
 
 <script>
-import HeaderBarComponent from '@/common/HeaderBarComponent'
-import LoadingComponent from '@/common/LoadingComponent'
+import LoadingComponent from '@/components/loading/LoadingComponent'
 
 export default {
     name: 'App',
     components: {
-        HeaderBarComponent,
         LoadingComponent
     }
 }

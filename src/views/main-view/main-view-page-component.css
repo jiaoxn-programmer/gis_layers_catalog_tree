@@ -1,0 +1,15 @@
+#esriViewComponentDiv {
+    position: absolute;
+    top: 64px;
+    bottom: 0px;
+    left: 0px;
+    right: 0px;
+}
+
+#catalogTreeDiv {
+    position: absolute;
+    top: 50%;
+    -ms-transform: translateY(-50%);
+    transform: translateY(-50%);
+    background-color: rgba(1, 6, 17, 0.8);
+}

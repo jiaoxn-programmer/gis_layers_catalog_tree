@@ -14,6 +14,9 @@ import animated from 'animate.css'
 import ElementUI from 'element-ui'
 import 'element-ui/lib/theme-chalk/index.css'
 
+/* 引用Mock */
+import '@/utils/mock'
+
 Vue.config.productionTip = false
 
 /* 使用ElementUI */

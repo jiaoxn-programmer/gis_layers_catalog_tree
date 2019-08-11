@@ -1,0 +1,39 @@
+/* 引用ArcGIS API For JS的样式文件 */
+@import url('https://js.arcgis.com/4.12/esri/themes/dark/main.css');
+
+/* 设置存储View的Div的高度和宽度 */
+#esriViewDiv {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+}
+
+/* 设置View的外边框 */
+.esri-view .esri-view-surface--inset-outline:focus::after {
+    outline: auto 0 Highlight !important;
+}
+
+/* 设置二三维切换按钮的div和input样式 */
+#switchBtnDiv {
+    position: absolute;
+    right: 15px;
+    bottom: 20px;
+}
+#switchBtnDiv input {
+    border: none;
+    box-shadow: rgba(0, 0, 0, 0.3) 0px 1px 2px;
+}
+
+/* SceneView中存放LayerListWidget的div样式 */
+#sceneViewLayerListContainerDiv {
+    top: 15px;
+    right: 0px;
+}
+
+/* MapView中存放LayerListWidget的div样式 */
+#mapViewLayerListContainerDiv {
+    top: 15px;
+    right: 0px;
+}

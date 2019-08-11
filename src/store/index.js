@@ -3,7 +3,7 @@ import Vuex from 'vuex'
 
 // 引入模块的vuex要素
 import esriViewVuexConfig from './esriView/index'
-import catalogTreeVuexConfig from './catalogTree/index'
+import catalogTreeVuexConfig from './catalog-tree/index'
 import loadingVuexConfig from './loading/index'
 import statisticsResultConfig from './statisticsResult/index'
 import functionMenuConfig from './functionMenu/index'
