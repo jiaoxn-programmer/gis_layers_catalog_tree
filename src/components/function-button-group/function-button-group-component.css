@@ -1,0 +1,19 @@
+#functionButtonGroupDiv {
+    box-shadow: 5px 5px 2px 1px rgba(0, 0, 0, .2);
+}
+
+#measurementButton {
+    background-color: #ea671f;
+    border: none;
+}
+
+.el-icon-measurement {
+    background: url("http://onlinecncd.maps.arcgis.com/apps/webappviewer/widgets/Measurement/images/icon.png") center no-repeat;
+    background-size: cover;
+}
+
+.el-icon-measurement:before{
+    content: "替";
+    font-size: 18px;
+    visibility: hidden;
+  }

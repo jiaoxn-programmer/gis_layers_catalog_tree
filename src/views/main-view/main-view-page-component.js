@@ -10,6 +10,7 @@ import { EventBus } from '@/event-bus/event-bus'
 import HeaderBarComponent from '@/components/header-bar/HeaderBarComponent'
 import EsriViewComponent from '@/components/esri-view/EsriViewComponent'
 import CatalogTreeWithSpanComponent from '@/components/catalog-tree-with-span/CatalogTreeWithSpanComponent'
+import FunctionButtonGroupComponent from '@/components/function-button-group/FunctionButtonGroupComponent'
 
 export default {
     name: 'MainViewPageComponent',
@@ -33,7 +34,8 @@ export default {
     components: {
         'esri-view-component': EsriViewComponent,
         'header-bar-component': HeaderBarComponent,
-        'catalog-tree-with-span-component': CatalogTreeWithSpanComponent
+        'catalog-tree-with-span-component': CatalogTreeWithSpanComponent,
+        'function-button-group-component': FunctionButtonGroupComponent
     },
     methods: {
         /**
