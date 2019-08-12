@@ -20,7 +20,8 @@ export default {
             esriMapView: null,
             activateView: null,
             containerDiv: 'esriViewDiv',
-            switchBtnText: '2D'
+            switchBtnText: '2D',
+            layerListWidget: null
         }
     },
     methods: {
@@ -121,18 +122,87 @@ export default {
             let that = this
 
             loadModules([
-                'esri/WebMap'
+                'esri/WebMap',
+                'esri/widgets/LayerList'
             ]).then(([
-                EsriWebMap
+                EsriWebMap,
+                EsriLayerList
             ]) => {
-                let webMap = EsriWebMap({
+                // 实例化WebMap
+                let webMap = new EsriWebMap({
                     portalItem: {
                         id: itemId
                     }
                 })
 
+                // 如果当前存在列表组件，则先销毁，再创建
+                if (that.layerListWidget) {
+                    that.layerListWidget.destroy()
+                }
+
+                // 创建新的列表组件
+                that.layerListWidget = new EsriLayerList({
+                    view: that.activateView,
+                    listItemCreatedFunction: defineActions
+                })
+                that.layerListWidget.on('trigger-action', layerListItemClickEvent)
+
+                // 列表组件添加到当前视图中
                 that.activateView.map = webMap
+                that.activateView.ui.add(that.layerListWidget, 'top-right')
             })
+
+            // 定义LayerList组件的Item操作选项
+            function defineActions (event) {
+                let item = event.item
+
+                item.actionsSections = [
+                    [
+                        {
+                            title: '缩放至图层',
+                            className: 'esri-icon-zoom-out-fixed',
+                            id: 'full-extent'
+                        },
+                        {
+                            title: '查看图层信息',
+                            className: 'esri-icon-description',
+                            id: 'information'
+                        }
+                    ],
+                    [
+                        {
+                            title: '增加图层透明度',
+                            className: 'esri-icon-up',
+                            id: 'increase-opacity'
+                        },
+                        {
+                            title: '减小图层透明度',
+                            className: 'esri-icon-down',
+                            id: 'decrease-opacity'
+                        }
+                    ]
+                ]
+            }
+
+            // LayerList组件的Item点击事件
+            function layerListItemClickEvent (event) {
+                let targetLayer = event.item.layer
+                let id = event.action.id
+
+                if (id === 'full-extent') {
+                    that.activateView.goTo(targetLayer.fullExtent)
+                } else if (id === 'information') {
+                    window.open(targetLayer.url)
+                } else if (id === 'increase-opacity') {
+                    if (targetLayer.opacity < 1) {
+                        targetLayer.opacity += 0.25
+                    }
+                } else if (id === 'decrease-opacity') {
+                    if (targetLayer.opacity > 0) {
+                        targetLayer.opacity -= 0.25
+                    }
+                }
+            }
         }
     }
 }
