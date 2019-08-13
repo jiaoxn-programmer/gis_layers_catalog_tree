@@ -79,6 +79,15 @@ export default {
                 this.$refs.esriViewComponent.loadWebMapByItemId(nodeData['webMapItemId'])
             }
         },
+        handleFunctionButtonClick: function (type) {
+            switch (type) {
+                case 'measurement':
+                    this.$refs.esriViewComponent.measurementOnEsriView()
+                    break
+                default:
+                    console.log('请选择一个功能模块')
+            }
+        },
         ...mapActions({
             updateLoadingComponentStatusAction: 'loadingVuex/updateLoadingComponentStatus'
         })

@@ -5,14 +5,23 @@
 
 import { loadModules } from 'esri-loader'
 
+import { EventBus } from '@/event-bus/event-bus'
+
 export default {
     name: 'EsriViewComponent',
     props: [
         'portalInfo'
     ],
     mounted () {
+        let that = this
+
         // 初始化当前View
         this.initEsriView()
+
+        // 监听测量事件
+        EventBus.$on('MEASUREMENT_ON_ESRI_VIEW', () => {
+            that.measurementOnEsriView()
+        })
     },
     data: function () {
         return {
@@ -21,7 +30,9 @@ export default {
             activateView: null,
             containerDiv: 'esriViewDiv',
             switchBtnText: '2D',
-            layerListWidget: null
+            layerListWidget: null,
+            measurementWidget: null,
+            isMeasurement: false
         }
     },
     methods: {
@@ -99,6 +110,10 @@ export default {
         switchBetween2DAnd3D: function () {
             let is3D = this.activateView.type === '3d'
             let activeViewPoint = this.activateView.viewpoint.clone()
+
+            // 销毁测量微件
+            this.isMeasurement = false
+            this.setActiveMeasureWidget(null)
 
             this.activateView.container = null
 
@@ -202,6 +217,164 @@ export default {
                         targetLayer.opacity -= 0.25
                     }
                 }
+            }
+        },
+        /**
+         * 执行距离测量
+         */
+        measurementOnEsriView: function () {
+            let that = this
+
+            if (this.isMeasurement) {
+                this.setActiveMeasureWidget(null)
+                this.isMeasurement = false
+            } else {
+                this.isMeasurement = true
+
+                setTimeout(function () {
+                    that.activateView.ui.add('topBarDiv', 'top-right')
+
+                    document.getElementById('distanceButton').addEventListener('click', function () {
+                        that.setActiveMeasureWidget(null)
+
+                        if (!this.classList.contains('active')) {
+                            that.setActiveMeasureWidget('distance')
+                        } else {
+                            that.setActiveMeasureWidget(null)
+                        }
+                    })
+
+                    document.getElementById('areaButton').addEventListener('click', function () {
+                        that.setActiveMeasureWidget(null)
+
+                        if (!this.classList.contains('active')) {
+                            that.setActiveMeasureWidget('area')
+                        } else {
+                            that.setActiveMeasureWidget(null)
+                        }
+                    })
+                }, 500)
+            }
+        },
+        /**
+         * 设置当前正在使用的测试微件
+         * @param {String} type 组件类型
+         */
+        setActiveMeasureWidget: function (type) {
+            switch (type) {
+                case 'distance':
+                    if (this.activateView.type === '2d') {
+                        this.measureDistanceOnMapView()
+                    } else {
+                        this.measureDistanceOnSceneView()
+                    }
+                    break
+                case 'area':
+                    if (this.activateView.type === '2d') {
+                        this.measureAreaOnMapView()
+                    } else {
+                        this.measureAreaOnSceneView()
+                    }
+                    break
+                case null:
+                    if (this.measurementWidget) {
+                        this.activateView.ui.remove(this.measurementWidget)
+                        this.measurementWidget.destroy()
+                        this.measurementWidget = null
+                    }
+                    break
+            }
+        },
+        /**
+         * 在SceneView中执行距离测量功能
+         */
+        measureDistanceOnSceneView: function () {
+            let that = this
+
+            loadModules([
+                'esri/widgets/DirectLineMeasurement3D'
+            ]).then(([
+                EsriDirectLineMeasurement3D
+            ]) => {
+                that.measurementWidget = new EsriDirectLineMeasurement3D({
+                    view: that.activateView
+                })
+
+                that.measurementWidget.viewModel.newMeasurement()
+                that.activateView.ui.add(that.measurementWidget, 'top-right')
+                that.setActiveButton(document.getElementById('distanceButton'))
+            })
+        },
+        /**
+         * 在MapView中执行距离测量功能
+         */
+        measureDistanceOnMapView: function () {
+            let that = this
+
+            loadModules([
+                'esri/widgets/DistanceMeasurement2D'
+            ]).then(([
+                EsriDistanceMeasurement2D
+            ]) => {
+                that.measurementWidget = new EsriDistanceMeasurement2D({
+                    view: that.activateView
+                })
+
+                that.measurementWidget.viewModel.newMeasurement()
+                that.activateView.ui.add(that.measurementWidget, 'top-right')
+                that.setActiveButton(document.getElementById('distanceButton'))
+            })
+        },
+        /**
+         * 在SceneView中执行面积测量功能
+         */
+        measureAreaOnSceneView: function () {
+            let that = this
+
+            loadModules([
+                'esri/widgets/AreaMeasurement3D'
+            ]).then(([
+                EsriAreaMeasurement3D
+            ]) => {
+                that.measurementWidget = new EsriAreaMeasurement3D({
+                    view: that.activateView
+                })
+
+                that.measurementWidget.viewModel.newMeasurement()
+                that.activateView.ui.add(that.measurementWidget, 'top-right')
+                that.setActiveButton(document.getElementById('areaButton'))
+            })
+        },
+        /**
+         * 在MapView中执行面积测量功能
+         */
+        measureAreaOnMapView: function () {
+            let that = this
+
+            loadModules([
+                'esri/widgets/AreaMeasurement2D'
+            ]).then(([
+                EsriAreaMeasurement2D
+            ]) => {
+                that.measurementWidget = new EsriAreaMeasurement2D({
+                    view: that.activateView
+                })
+
+                that.measurementWidget.viewModel.newMeasurement()
+                that.activateView.ui.add(that.measurementWidget, 'top-right')
+                that.setActiveButton(document.getElementById('areaButton'))
+            })
+        },
+        setActiveButton: function (selectedButton) {
+            this.activateView.focus()
+
+            let elements = document.getElementsByClassName('active')
+
+            for (var i = 0; i < elements.length; i++) {
+                elements[i].classList.remove('active')
+            }
+            if (selectedButton) {
+                selectedButton.classList.add('active')
             }
         }
     }

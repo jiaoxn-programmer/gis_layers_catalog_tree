@@ -2,7 +2,9 @@
     <div>
         <div id="functionButtonGroupDiv">
             <el-button-group>
-                <el-button id="measurementButton" icon="el-icon-measurement" size="small"></el-button>
+                <el-tooltip content="测量" placement="top">
+                    <el-button id="measurementButton" icon="el-icon-measurement" size="small" @click="measurementOnEsriView"></el-button>
+                </el-tooltip>
             </el-button-group>
         </div>
     </div>

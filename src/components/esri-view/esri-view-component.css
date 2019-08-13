@@ -37,3 +37,9 @@
     top: 15px;
     right: 0px;
 }
+
+/* 距离测量按钮的样式 */
+#topBarDiv {
+    background: #333;
+    padding: 10px;
+}
