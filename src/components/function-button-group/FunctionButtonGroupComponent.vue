@@ -8,6 +8,9 @@
                 <el-tooltip content="面积测量" placement="top">
                     <el-button id="measurementAreaButton" icon="el-icon-measurement-area" size="small" @click="measureAreaOnEsriView"></el-button>
                 </el-tooltip>
+                <el-tooltip content="框选统计" placement="top">
+                    <el-button id="frameSelectionButton" icon="el-icon-frame-selection" size="small" @click="frameSelectionStatisticsOnEsriView"></el-button>
+                </el-tooltip>
             </el-button-group>
         </div>
     </div>

@@ -32,7 +32,7 @@ export default {
             switchBtnText: '2D',
             layerListWidget: null,
             measurementWidget: null,
-            isMeasurement: false
+            sketchWidget: null
         }
     },
     methods: {
@@ -112,7 +112,6 @@ export default {
             let activeViewPoint = this.activateView.viewpoint.clone()
 
             // 销毁测量微件
-            this.isMeasurement = false
             this.setActiveMeasureWidget(null)
 
             this.activateView.container = null
@@ -240,6 +239,9 @@ export default {
          * @param {String} type 组件类型
          */
         setActiveMeasureWidget: function (type) {
+            // 清空sketch widget
+            this.destroySketchWidget()
+
             switch (type) {
                 case 'distance':
                     if (this.activateView.type === '2d') {
@@ -281,7 +283,6 @@ export default {
 
                 that.measurementWidget.viewModel.newMeasurement()
                 that.activateView.ui.add(that.measurementWidget, 'top-right')
-                that.setActiveButton(document.getElementById('distanceButton'))
             })
         },
         /**
@@ -301,7 +302,6 @@ export default {
 
                 that.measurementWidget.viewModel.newMeasurement()
                 that.activateView.ui.add(that.measurementWidget, 'top-right')
-                that.setActiveButton(document.getElementById('distanceButton'))
             })
         },
         /**
@@ -321,7 +321,6 @@ export default {
 
                 that.measurementWidget.viewModel.newMeasurement()
                 that.activateView.ui.add(that.measurementWidget, 'top-right')
-                that.setActiveButton(document.getElementById('areaButton'))
             })
         },
         /**
@@ -341,19 +340,62 @@ export default {
 
                 that.measurementWidget.viewModel.newMeasurement()
                 that.activateView.ui.add(that.measurementWidget, 'top-right')
-                that.setActiveButton(document.getElementById('areaButton'))
             })
         },
-        setActiveButton: function (selectedButton) {
-            this.activateView.focus()
+        /**
+         * 框选统计
+         */
+        frameSelectionOnEsriView: function () {
+            // 清空距离测量组件
+            this.setActiveMeasureWidget(null)
 
-            let elements = document.getElementsByClassName('active')
+            let that = this
 
-            for (var i = 0; i < elements.length; i++) {
-                elements[i].classList.remove('active')
-            }
-            if (selectedButton) {
-                selectedButton.classList.add('active')
+            return new Promise((resolve, reject) => {
+                try {
+                    loadModules([
+                        'esri/layers/GraphicsLayer',
+                        'esri/widgets/Sketch'
+                    ]).then(([
+                        EsriGraphicLayer,
+                        EsriSketch
+                    ]) => {
+                        const graphicsLayer = new EsriGraphicLayer({
+                            id: 'sketchGraphicLayer'
+                        })
+
+                        that.sketchWidget = new EsriSketch({
+                            view: that.activateView,
+                            layer: graphicsLayer,
+                            availableCreateTools: ['polygon', 'rectangle']
+                        })
+
+                        that.activateView.map.add(graphicsLayer)
+                        that.activateView.ui.add(that.sketchWidget, 'top-right')
+
+                        that.sketchWidget.on('create', function (event) {
+                            if (event.state === 'complete') {
+                                resolve(event.graphic)
+                            }
+                        })
+                    })
+                } catch (error) {
+                    reject(error)
+                }
+            })
+        },
+        /**
+         * 销毁sketch微件实例
+         */
+        destroySketchWidget: function () {
+            debugger
+            if (this.sketchWidget) {
+                this.activateView.ui.remove(this.sketchWidget)
+                this.sketchWidget.destroy()
+                this.sketchWidget = null
+
+                const sketchGraphicLayer = this.activateView.map.findLayerById('sketchGraphicLayer')
+                this.activateView.map.remove(sketchGraphicLayer)
             }
         }
     }

@@ -91,6 +91,21 @@ export default {
                 case 'areaMeasurement':
                     this.$refs.esriViewComponent.measureAreaOnEsriView()
                     break
+                case 'frameSelectionStatistics':
+                    this.$refs.esriViewComponent.frameSelectionOnEsriView().then(
+                        (drawResultAsGraphic) => {
+                            const extent = drawResultAsGraphic.geometry.extent
+                            const extentXMax = extent.xmax
+                            const extentXMin = extent.xmin
+                            const extentYMax = extent.ymax
+                            const extentYMin = extent.ymin
+                            console.log(extent)
+                        },
+                        (drawError) => {
+                            console.log(drawError)
+                        }
+                    )
+                    break
                 default:
                     console.log('请选择一个功能模块')
             }

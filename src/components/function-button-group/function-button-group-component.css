@@ -39,3 +39,20 @@
     visibility: hidden;
 }
 
+/* 框选查询按钮样式 */
+#frameSelectionButton {
+    background-color: #00a54e;
+    border: none;
+    margin-right: 5px;
+}
+
+/* 框选查询图标样式 */
+.el-icon-frame-selection {
+    background: url("../../assets/images/frame-selection.png") center no-repeat;
+    background-size: cover;
+}
+.el-icon-frame-selection:before{
+    content: "替";
+    font-size: 18px;
+    visibility: hidden;
+}

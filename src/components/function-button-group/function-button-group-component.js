@@ -17,6 +17,12 @@ export default {
          */
         measureAreaOnEsriView: function () {
             this.$parent.handleFunctionButtonClick('areaMeasurement')
+        },
+        /**
+         * 框选统计按钮的点击函数
+         */
+        frameSelectionStatisticsOnEsriView: function () {
+            this.$parent.handleFunctionButtonClick('frameSelectionStatistics')
         }
     },
     data () {
