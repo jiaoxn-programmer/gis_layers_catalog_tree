@@ -222,39 +222,18 @@ export default {
         /**
          * 执行距离测量
          */
-        measurementOnEsriView: function () {
-            let that = this
+        measureLengthOnEsriView: function () {
+            this.setActiveMeasureWidget(null)
 
-            if (this.isMeasurement) {
-                this.setActiveMeasureWidget(null)
-                this.isMeasurement = false
-            } else {
-                this.isMeasurement = true
+            this.setActiveMeasureWidget('distance')
+        },
+        /**
+         * 执行面积测量
+         */
+        measureAreaOnEsriView: function () {
+            this.setActiveMeasureWidget(null)
 
-                setTimeout(function () {
-                    that.activateView.ui.add('topBarDiv', 'top-right')
-
-                    document.getElementById('distanceButton').addEventListener('click', function () {
-                        that.setActiveMeasureWidget(null)
-
-                        if (!this.classList.contains('active')) {
-                            that.setActiveMeasureWidget('distance')
-                        } else {
-                            that.setActiveMeasureWidget(null)
-                        }
-                    })
-
-                    document.getElementById('areaButton').addEventListener('click', function () {
-                        that.setActiveMeasureWidget(null)
-
-                        if (!this.classList.contains('active')) {
-                            that.setActiveMeasureWidget('area')
-                        } else {
-                            that.setActiveMeasureWidget(null)
-                        }
-                    })
-                }, 500)
-            }
+            this.setActiveMeasureWidget('area')
         },
         /**
          * 设置当前正在使用的测试微件

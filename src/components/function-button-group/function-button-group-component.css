@@ -1,19 +1,41 @@
+/* 设置ButtonGroup的阴影 */
 #functionButtonGroupDiv {
     box-shadow: 5px 5px 2px 1px rgba(0, 0, 0, .2);
 }
 
-#measurementButton {
-    background-color: #ea671f;
+/* 距离测量按钮样式 */
+#measurementLengthButton {
+    background-color: #00adee;
     border: none;
+    margin-right: 5px;
 }
 
-.el-icon-measurement {
-    background: url("http://onlinecncd.maps.arcgis.com/apps/webappviewer/widgets/Measurement/images/icon.png") center no-repeat;
+/* 距离测量图标样式 */
+.el-icon-measurement-length {
+    background: url("../../assets/images/length_measurement.png") center no-repeat;
     background-size: cover;
 }
-
-.el-icon-measurement:before{
+.el-icon-measurement-length:before{
     content: "替";
     font-size: 18px;
     visibility: hidden;
-  }
+}
+
+/* 面积测量按钮样式 */
+#measurementAreaButton {
+    background-color: #ea671f;
+    border: none;
+    margin-right: 5px;
+}
+
+/* 面积测量图标样式 */
+.el-icon-measurement-area {
+    background: url("../../assets/images/area_measurement.png") center no-repeat;
+    background-size: cover;
+}
+.el-icon-measurement-area:before{
+    content: "替";
+    font-size: 18px;
+    visibility: hidden;
+}
+

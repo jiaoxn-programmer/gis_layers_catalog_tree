@@ -79,10 +79,17 @@ export default {
                 this.$refs.esriViewComponent.loadWebMapByItemId(nodeData['webMapItemId'])
             }
         },
+        /**
+         * 功能按钮组的对应的功能
+         * @param {String} type 执行的功能
+         */
         handleFunctionButtonClick: function (type) {
             switch (type) {
-                case 'measurement':
-                    this.$refs.esriViewComponent.measurementOnEsriView()
+                case 'lengthMeasurement':
+                    this.$refs.esriViewComponent.measureLengthOnEsriView()
+                    break
+                case 'areaMeasurement':
+                    this.$refs.esriViewComponent.measureAreaOnEsriView()
                     break
                 default:
                     console.log('请选择一个功能模块')

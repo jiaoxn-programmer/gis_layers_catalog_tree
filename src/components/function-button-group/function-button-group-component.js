@@ -7,10 +7,16 @@ export default {
     name: 'FunctionButtonGroup',
     methods: {
         /**
-         * 测量按钮的点击函数
+         * 距离测量按钮的点击函数
          */
-        measurementOnEsriView: function () {
-            this.$parent.handleFunctionButtonClick('measurement')
+        measureLengthOnEsriView: function () {
+            this.$parent.handleFunctionButtonClick('lengthMeasurement')
+        },
+        /**
+         * 面积测量按钮的点击函数
+         */
+        measureAreaOnEsriView: function () {
+            this.$parent.handleFunctionButtonClick('areaMeasurement')
         }
     },
     data () {
