@@ -8,20 +8,6 @@
                 />
             </div>
         </div>
-        <div id="topBarDiv" v-if="isMeasurement">
-            <button
-                class="action-button esri-icon-minus"
-                id="distanceButton"
-                type="button"
-                title="距离测量"
-            ></button>
-            <button
-                class="action-button esri-icon-polygon"
-                id="areaButton"
-                type="button"
-                title="面积测量"
-            ></button>
-        </div>
     </div>
 </template>
 
