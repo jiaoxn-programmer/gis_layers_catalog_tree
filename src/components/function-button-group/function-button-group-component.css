@@ -84,3 +84,56 @@
     font-size: 18px;
     visibility: hidden;
 }
+
+/* 区域查询按钮样式 */
+#regionalQueryButton {
+    background-color: #967857;
+    border: none;
+    margin-right: 5px;
+}
+
+/* 区域查询图标样式 */
+.el-icon-regional-query {
+    background: url("../../assets/images/regional_query.png") center no-repeat;
+    background-size: cover;
+}
+.el-icon-regional-query:before{
+    content: "替";
+    font-size: 18px;
+    visibility: hidden;
+}
+
+/* 打印查询按钮样式 */
+#printButton {
+    background-color: #717173;
+    border: none;
+    margin-right: 5px;
+}
+
+/* 区域查询图标样式 */
+.el-icon-print {
+    background: url("../../assets/images/print.png") center no-repeat;
+    background-size: cover;
+}
+.el-icon-print:before{
+    content: "替";
+    font-size: 18px;
+    visibility: hidden;
+}
+
+/* 上传文件按钮样式 */
+#uploadButton {
+    background-color: #3b8fc4;
+    border: none;
+}
+
+/* 上传文件图标样式 */
+.el-icon-upload {
+    background: url("../../assets/images/upload.png") center no-repeat;
+    background-size: cover;
+}
+.el-icon-upload:before{
+    content: "替";
+    font-size: 18px;
+    visibility: hidden;
+}
