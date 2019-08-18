@@ -33,7 +33,8 @@ export default {
             layerListWidget: null,
             measurementWidget: null,
             sketchWidget: null,
-            printWidget: null
+            printWidget: null,
+            searchWidget: null
         }
     },
     methods: {
@@ -408,6 +409,55 @@ export default {
          * 区域查询
          */
         regionalQueryOnEsriView: function () {
+            // 清空所有组件
+            this.destroyAllWidgets()
+
+            let that = this
+
+            loadModules([
+                'esri/layers/FeatureLayer',
+                'esri/widgets/Search'
+            ]).then(([
+                EsriFeatureLayer,
+                EsriSearch
+            ]) => {
+                const featureSources = [
+                    {
+                        layer: new EsriFeatureLayer({
+                            url: 'https://services1.arcgis.com/cDevWdPu8Ni4rALu/ArcGIS/rest/services/12345678/FeatureServer/0',
+                            outFields: ['*']
+                        }),
+                        searchFields: ['NAME'],
+                        displayField: 'NAME',
+                        exactMatch: false,
+                        outFields: ['*'],
+                        name: '省',
+                        placeholder: '中国省份',
+                        maxResults: 6,
+                        maxSuggestions: 6,
+                        suggestionsEnabled: true,
+                        minSuggestCharacters: 0
+                    }
+                ]
+
+                that.searchWidget = new EsriSearch({
+                    view: that.activateView,
+                    sources: featureSources,
+                    includeDefaultSources: false
+                })
+
+                that.activateView.ui.add(that.searchWidget, 'top-right')
+            })
+        },
+        /**
+         * 销毁搜索实例
+         */
+        destroySearchWidget: function () {
+            if (this.searchWidget) {
+                this.activateView.ui.remove(this.searchWidget)
+                this.searchWidget.destroy()
+                this.searchWidget = null
+            }
         },
         /**
          * 打印地图
@@ -448,6 +498,7 @@ export default {
             this.destroyMeasureWidget() // 销毁测量组件
             this.destroySketchWidget() // 销毁sketch组件
             this.destroyPrintWidget() // 销毁打印组件
+            this.destroySearchWidget() // 销毁搜索组件
         },
         /**
          * 获取当前激活视图的类型
