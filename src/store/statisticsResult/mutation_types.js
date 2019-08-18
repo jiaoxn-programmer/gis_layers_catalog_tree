@@ -1,1 +1,0 @@
-export const SET_ECHART_CONTENT = 'SET_ECHART_CONTENT'

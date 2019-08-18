@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div class="animated fadeInUp">
         <div id="functionButtonGroupDiv">
             <el-button-group>
                 <el-tooltip content="距离测量" placement="top">

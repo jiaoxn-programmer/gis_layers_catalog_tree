@@ -388,7 +388,6 @@ export default {
          * 销毁sketch微件实例
          */
         destroySketchWidget: function () {
-            debugger
             if (this.sketchWidget) {
                 this.activateView.ui.remove(this.sketchWidget)
                 this.sketchWidget.destroy()
@@ -396,6 +395,9 @@ export default {
 
                 const sketchGraphicLayer = this.activateView.map.findLayerById('sketchGraphicLayer')
                 this.activateView.map.remove(sketchGraphicLayer)
+
+                // 发出销毁sketch组件的事件
+                EventBus.$emit('destroySketchWidget')
             }
         }
     }

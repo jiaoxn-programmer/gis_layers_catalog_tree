@@ -5,7 +5,8 @@
             <esri-view-component ref="esriViewComponent" @esriViewLoaded="esriViewLoaded"></esri-view-component>
         </div>
         <catalog-tree-with-span-component v-if="isShowCatalogTree"></catalog-tree-with-span-component>
-        <function-button-group-component id="functionButtonGroupComponent"></function-button-group-component>
+        <function-button-group-component id="functionButtonGroupComponent" v-if="isShowButtonGroup"></function-button-group-component>
+        <statistical-result-component v-if="isShowStatisticalResult"></statistical-result-component>
     </div>
 </template>
 

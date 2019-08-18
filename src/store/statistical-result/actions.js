@@ -20,3 +20,19 @@ export const setEChartContent = function ({ commit }, eChartContent) {
 export const eChartItemClick = function ({ dispatch }, eChartItemData) {
     dispatch('esriViewVuex/updateLayerFilterParams', eChartItemData, { root: true })
 }
+
+/**
+ * 显示统计结果
+ * @param {Object} context对象
+ */
+export const showStatisticalResult = function ({ commit }) {
+    commit(types.SHOW_STATISTICAL_RESULT)
+}
+
+/**
+ * 隐藏统计结果
+ * @param {Object} context对象
+ */
+export const hideStatisticalResult = function ({ commit }) {
+    commit(types.HIDE_STATISTICAL_RESULT)
+}

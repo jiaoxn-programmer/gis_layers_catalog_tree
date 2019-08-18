@@ -2,11 +2,11 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 
 // 引入模块的vuex要素
-import esriViewVuexConfig from './esriView/index'
+import esriViewVuexConfig from './esri-view/index'
 import catalogTreeVuexConfig from './catalog-tree/index'
 import loadingVuexConfig from './loading/index'
-import statisticsResultConfig from './statisticsResult/index'
-import functionMenuConfig from './functionMenu/index'
+import statisticalResultConfig from './statistical-result/index'
+import functionMenuConfig from './function-menu/index'
 
 Vue.use(Vuex)
 
@@ -15,7 +15,7 @@ export default new Vuex.Store({
         esriViewVuex: esriViewVuexConfig,
         catalogTreeVuex: catalogTreeVuexConfig,
         loadingVuex: loadingVuexConfig,
-        statisticsResult: statisticsResultConfig,
+        statisticalResult: statisticalResultConfig,
         functionMenuVuex: functionMenuConfig
     }
 })

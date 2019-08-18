@@ -37,7 +37,7 @@ export const hideLoadingComponent = function ({ dispatch }) {
  * @param {Array} eChartContent.eChartData eChart的数据
  */
 export const transferEChartContent = function ({ dispatch }, eChartContent) {
-    dispatch('statisticsResult/setEChartContent', eChartContent, { root: true })
+    dispatch('statisticalResult/setEChartContent', eChartContent, { root: true })
 }
 
 /**

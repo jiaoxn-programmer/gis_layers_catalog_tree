@@ -4,7 +4,8 @@ const states = {
         titleSubText: '',
         eChartName: '',
         eChartData: {}
-    }
+    },
+    isShowStatisticalResult: false
 }
 
 export default states

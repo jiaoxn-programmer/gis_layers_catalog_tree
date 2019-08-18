@@ -5,7 +5,7 @@
 
 const Mock = require('mockjs')
 
-const domain = 'http://mockjs.com/api'
+const domain = 'http://localhost/api'
 
 // 生成目录树源数据
 const catalogTreeSourceData = req => {
@@ -85,4 +85,33 @@ const catalogTreeSourceData = req => {
     }
 }
 
+// 生成统计数据
+const generateStatisticalData = req => {
+    console.log(req)
+
+    const statisticalData = {
+        titleText: '图层统计结果',
+        titleSubText: '纯属虚构',
+        eChartName: '图层统计结果',
+        eChartData: [
+            {
+                value: 100,
+                name: 'POPU_TOTAL',
+                filed: 'NAMEEN',
+                filedValue: 'Qinghai'
+            }, {
+                value: 200,
+                name: 'POPU_94_TOTAL',
+                filed: 'NAMEEN',
+                filedValue: 'Gansu'
+            }
+        ]
+    }
+
+    return {
+        data: statisticalData
+    }
+}
+
 Mock.mock(`${domain}/catalog-tree`, 'get', catalogTreeSourceData)
+Mock.mock(`${domain}/statistical-data`, 'post', generateStatisticalData)

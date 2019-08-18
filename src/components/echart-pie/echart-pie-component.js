@@ -1,10 +1,8 @@
-<template>
-    <div id="pieChartDiv">
-        <v-chart :options='pie' @click="pieChartClick"></v-chart>
-    </div>
-</template>
+/**
+ * @file EChart组件对应的JS文件
+ * @author JiaoXiangNing(2438822080@qq.com)
+ */
 
-<script>
 import { mapGetters, mapActions } from 'vuex'
 
 import ECharts from 'vue-echarts/components/ECharts'
@@ -21,13 +19,27 @@ export default {
         'v-chart': ECharts
     },
     mounted () {
-        let that = this
-
-        EventBus.$on('updatePieContent', function () {
-            that.pie = {
+        this.initializeEChart()
+    },
+    computed: {
+        ...mapGetters('statisticalResult', {
+            eChartContentGetter: 'eChartContent'
+        })
+    },
+    data: function () {
+        return {
+            pie: {}
+        }
+    },
+    methods: {
+        /**
+         * 初始化当前组件
+         */
+        initializeEChart () {
+            this.pie = {
                 title: {
-                    text: that.getEChartContent['titleText'],
-                    subtext: that.getEChartContent['titleSubText'],
+                    text: this.eChartContentGetter['titleText'],
+                    subtext: this.eChartContentGetter['titleSubText'],
                     x: 'center',
                     textStyle: {
                         color: 'white',
@@ -40,11 +52,11 @@ export default {
                 },
                 series: [
                     {
-                        name: that.getEChartContent['eChartName'],
+                        name: this.eChartContentGetter['eChartName'],
                         type: 'pie',
                         radius: '50%',
                         center: ['50%', '60%'],
-                        data: that.getEChartContent['eChartData'],
+                        data: this.eChartContentGetter['eChartData'],
                         itemStyle: {
                             emphasis: {
                                 shadowBlur: 10,
@@ -55,37 +67,14 @@ export default {
                     }
                 ]
             }
-        })
-    },
-    computed: {
-        getEChartContent () {
-            return this.eChartContentGetter
         },
-        ...mapGetters('statisticsResult', {
-            eChartContentGetter: 'eChartContent'
-        })
-    },
-    data: function () {
-        return {
-            pie: {}
-        }
-    },
-    methods: {
         pieChartClick (event) {
             let pieChartItemData = event.data
 
             this.eChartItemClickAction(pieChartItemData)
         },
         ...mapActions({
-            eChartItemClickAction: 'statisticsResult/eChartItemClick'
+            eChartItemClickAction: 'statisticalResult/eChartItemClick'
         })
     }
 }
-</script>
-
-<style scoped>
-.echarts {
-    width: 300px;
-    height: 200px;
-}
-</style>

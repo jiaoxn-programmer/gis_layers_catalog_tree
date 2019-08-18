@@ -3,7 +3,7 @@
  * @author JiaoXiangNing(2438822080@qq.com)
  */
 
-import { mapActions } from 'vuex'
+import { mapActions, mapGetters } from 'vuex'
 
 import { EventBus } from '@/event-bus/event-bus'
 
@@ -11,13 +11,17 @@ import HeaderBarComponent from '@/components/header-bar/HeaderBarComponent'
 import EsriViewComponent from '@/components/esri-view/EsriViewComponent'
 import CatalogTreeWithSpanComponent from '@/components/catalog-tree-with-span/CatalogTreeWithSpanComponent'
 import FunctionButtonGroupComponent from '@/components/function-button-group/FunctionButtonGroupComponent'
+import StatisticalResultComponent from '@/components/statistical-result/StatisticalResultComponent'
+
+import { fetchStatisticalData } from '@/api/statistical-result-backend-api'
 
 export default {
     name: 'MainViewPageComponent',
     data: function () {
         return {
             loading: null,
-            isShowCatalogTree: false
+            isShowCatalogTree: false,
+            isShowButtonGroup: false
         }
     },
     mounted () {
@@ -30,12 +34,23 @@ export default {
         EventBus.$on('catalogTreeNodeClick', function (catalogTreeNodeData) {
             that.handleCatalogTreeNodeClick(catalogTreeNodeData)
         })
+
+        // 监听sketch组件销毁事件
+        EventBus.$on('destroySketchWidget', function () {
+            that.hideStatisticalResultAction()
+        })
+    },
+    computed: {
+        ...mapGetters('statisticalResult', [
+            'isShowStatisticalResult'
+        ])
     },
     components: {
         'esri-view-component': EsriViewComponent,
         'header-bar-component': HeaderBarComponent,
         'catalog-tree-with-span-component': CatalogTreeWithSpanComponent,
-        'function-button-group-component': FunctionButtonGroupComponent
+        'function-button-group-component': FunctionButtonGroupComponent,
+        'statistical-result-component': StatisticalResultComponent
     },
     methods: {
         /**
@@ -51,6 +66,9 @@ export default {
 
             // 显示目录树组件
             this.isShowCatalogTree = true
+
+            // 显示功能按钮组件
+            this.isShowButtonGroup = true
         },
         /**
          * 显示加载页面
@@ -92,26 +110,54 @@ export default {
                     this.$refs.esriViewComponent.measureAreaOnEsriView()
                     break
                 case 'frameSelectionStatistics':
-                    this.$refs.esriViewComponent.frameSelectionOnEsriView().then(
-                        (drawResultAsGraphic) => {
-                            const extent = drawResultAsGraphic.geometry.extent
-                            const extentXMax = extent.xmax
-                            const extentXMin = extent.xmin
-                            const extentYMax = extent.ymax
-                            const extentYMin = extent.ymin
-                            console.log(extent)
-                        },
-                        (drawError) => {
-                            console.log(drawError)
-                        }
-                    )
+                    this.executeFrameSelectionStatistics()
                     break
                 default:
                     console.log('请选择一个功能模块')
             }
         },
+        /**
+         * 执行框选统计查询
+         */
+        executeFrameSelectionStatistics: function () {
+            let that = this
+
+            this.$refs.esriViewComponent.frameSelectionOnEsriView().then(
+                (drawResultAsGraphic) => {
+                    const extent = drawResultAsGraphic.geometry.extent
+
+                    const extentXMax = extent.xmax
+                    const extentXMin = extent.xmin
+                    const extentYMax = extent.ymax
+                    const extentYMin = extent.ymin
+
+                    const postRequestBody = {
+                        xmax: extentXMax,
+                        xmin: extentXMin,
+                        ymax: extentYMax,
+                        ymin: extentYMin
+                    }
+
+                    // 使用POST请求，获取统计结果
+                    fetchStatisticalData(postRequestBody, successfulCallback, failCallback)
+                },
+                (drawError) => {
+                    console.log(drawError)
+                }
+            )
+
+            function successfulCallback () {
+                that.showStatisticalResultAction()
+            }
+
+            function failCallback () {
+                console.log('error')
+            }
+        },
         ...mapActions({
-            updateLoadingComponentStatusAction: 'loadingVuex/updateLoadingComponentStatus'
+            updateLoadingComponentStatusAction: 'loadingVuex/updateLoadingComponentStatus',
+            showStatisticalResultAction: 'statisticalResult/showStatisticalResult',
+            hideStatisticalResultAction: 'statisticalResult/hideStatisticalResult'
         })
     }
 }

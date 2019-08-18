@@ -11,5 +11,19 @@ export default {
      */
     [types.SET_ECHART_CONTENT] (state, eChartContent) {
         state.eChartContent = eChartContent
+    },
+    /**
+     * 显示统计结果
+     * @param {*} state state对象
+     */
+    [types.SHOW_STATISTICAL_RESULT] (state) {
+        state.isShowStatisticalResult = true
+    },
+    /**
+     * 隐藏统计结果
+     * @param {*} state state对象
+     */
+    [types.HIDE_STATISTICAL_RESULT] (state) {
+        state.isShowStatisticalResult = false
     }
 }
