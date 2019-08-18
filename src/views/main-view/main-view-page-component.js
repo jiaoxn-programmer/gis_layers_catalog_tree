@@ -6,6 +6,7 @@
 import { mapActions, mapGetters } from 'vuex'
 
 import { EventBus } from '@/event-bus/event-bus'
+import { Message } from 'element-ui'
 
 import HeaderBarComponent from '@/components/header-bar/HeaderBarComponent'
 import EsriViewComponent from '@/components/esri-view/EsriViewComponent'
@@ -112,6 +113,15 @@ export default {
                 case 'frameSelectionStatistics':
                     this.executeFrameSelectionStatistics()
                     break
+                case 'regionalQuery':
+                    this.executeRegionalQuery()
+                    break
+                case 'print':
+                    this.executePrint()
+                    break
+                case 'upload':
+                    this.executeUpload()
+                    break
                 default:
                     console.log('请选择一个功能模块')
             }
@@ -153,6 +163,32 @@ export default {
             function failCallback () {
                 console.log('error')
             }
+        },
+        /**
+         * 执行区域查询
+         */
+        executeRegionalQuery: function () {
+            this.$refs.esriViewComponent.regionalQueryOnEsriView()
+        },
+        /**
+         * 执行打印地图
+         */
+        executePrint: function () {
+            if (this.$refs.esriViewComponent.getCurrentViewType() === '2d') {
+                this.$refs.esriViewComponent.printOnEsriView()
+            } else {
+                this.$message({
+                    message: '请切换到二维视图',
+                    type: 'info',
+                    offset: 80
+                })
+            }
+        },
+        /**
+         * 执行上传文件
+         */
+        executeUpload: function () {
+
         },
         ...mapActions({
             updateLoadingComponentStatusAction: 'loadingVuex/updateLoadingComponentStatus',

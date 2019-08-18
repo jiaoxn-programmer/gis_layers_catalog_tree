@@ -32,7 +32,8 @@ export default {
             switchBtnText: '2D',
             layerListWidget: null,
             measurementWidget: null,
-            sketchWidget: null
+            sketchWidget: null,
+            printWidget: null
         }
     },
     methods: {
@@ -112,7 +113,7 @@ export default {
             let activeViewPoint = this.activateView.viewpoint.clone()
 
             // 销毁测量微件
-            this.setActiveMeasureWidget(null)
+            this.destroyAllWidgets()
 
             this.activateView.container = null
 
@@ -239,9 +240,6 @@ export default {
          * @param {String} type 组件类型
          */
         setActiveMeasureWidget: function (type) {
-            // 清空sketch widget
-            this.destroySketchWidget()
-
             switch (type) {
                 case 'distance':
                     if (this.activateView.type === '2d') {
@@ -258,12 +256,18 @@ export default {
                     }
                     break
                 case null:
-                    if (this.measurementWidget) {
-                        this.activateView.ui.remove(this.measurementWidget)
-                        this.measurementWidget.destroy()
-                        this.measurementWidget = null
-                    }
+                    this.destroyAllWidgets()
                     break
+            }
+        },
+        /**
+         * 销毁测量组件
+         */
+        destroyMeasureWidget: function () {
+            if (this.measurementWidget) {
+                this.activateView.ui.remove(this.measurementWidget)
+                this.measurementWidget.destroy()
+                this.measurementWidget = null
             }
         },
         /**
@@ -346,8 +350,8 @@ export default {
          * 框选统计
          */
         frameSelectionOnEsriView: function () {
-            // 清空距离测量组件
-            this.setActiveMeasureWidget(null)
+            // 清空所有组件实例
+            this.destroyAllWidgets()
 
             let that = this
 
@@ -399,6 +403,58 @@ export default {
                 // 发出销毁sketch组件的事件
                 EventBus.$emit('destroySketchWidget')
             }
+        },
+        /**
+         * 区域查询
+         */
+        regionalQueryOnEsriView: function () {
+        },
+        /**
+         * 打印地图
+         */
+        printOnEsriView: function () {
+            // 销毁所有组件
+            this.destroyAllWidgets()
+
+            let that = this
+
+            loadModules([
+                'esri/widgets/Print'
+            ]).then(([
+                EsriPrint
+            ]) => {
+                that.printWidget = new EsriPrint({
+                    view: that.activateView,
+                    printServiceUrl: 'https://utility.arcgisonline.com/arcgis/rest/services/Utilities/PrintingTools/GPServer/Export%20Web%20Map%20Task'
+                })
+
+                that.activateView.ui.add(that.printWidget, 'top-right')
+            })
+        },
+        /**
+         * 销毁打印组件实例
+         */
+        destroyPrintWidget: function () {
+            if (this.printWidget) {
+                this.activateView.ui.remove(this.printWidget)
+                this.printWidget.destroy()
+                this.printWidget = null
+            }
+        },
+        /**
+         * 销毁所有组件实例
+         */
+        destroyAllWidgets: function () {
+            this.destroyMeasureWidget() // 销毁测量组件
+            this.destroySketchWidget() // 销毁sketch组件
+            this.destroyPrintWidget() // 销毁打印组件
+        },
+        /**
+         * 获取当前激活视图的类型
+         * @return {String} 当前激活视图的类型
+         */
+        getCurrentViewType: function () {
+            return this.activateView.type
         }
     }
 }
